@@ -3,7 +3,7 @@
 {% block title %}Compare Resume{% endblock %}
 
 {% block content %}
-<div class="row g-4">
+<div class="row g-4 m-1">
   <!-- Left: Job description editor -->
   <div class="col-md-5">
     <div class="card shadow-sm h-100">
@@ -14,16 +14,20 @@
           text (bold, lists, headings, etc.).
         </p>
 
-        <form method="post" class="d-flex flex-column flex-grow-1">
+        <form method="post" class="d-flex flex-column">
           <input type="hidden" name="job_description" id="job_description_input" />
-          <div id="editor" class="flex-grow-1 border rounded" style="min-height: 260px;">
+          <div
+            id="editor"
+            class="border rounded"
+            style="height: 260px; overflow-y: auto;"
+          >
             {% if job_description_html %}
             {{ job_description_html|safe }}
             {% endif %}
           </div>
           <div class="mt-3 d-flex justify-content-end">
             <button type="submit" class="btn btn-primary">
-              Save description
+              Run ATS Check
             </button>
           </div>
         </form>
