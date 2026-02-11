@@ -17,6 +17,8 @@
         --rd-bg: #e8f5e9;
         --rd-bg-accent: #c8e6c9;
         --rd-surface: #ffffff;
+        --rd-glass: rgba(255, 255, 255, 0.72);
+        --rd-glass-border: rgba(255, 255, 255, 0.4);
         --rd-primary: #43a047;
         --rd-primary-dark: #2e7d32;
         --rd-primary-light: #a5d6a7;
@@ -26,6 +28,19 @@
 
       * {
         box-sizing: border-box;
+      }
+
+      /* Hide scrollbars on Windows (and elsewhere) while keeping scroll */
+      html,
+      body,
+      * {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar,
+      *::-webkit-scrollbar {
+        display: none;
       }
 
       body {
@@ -42,12 +57,15 @@
       .rd-navbar {
         background: linear-gradient(
           90deg,
-          var(--rd-primary-light),
-          var(--rd-primary)
+          rgba(165, 214, 167, 0.85),
+          rgba(67, 160, 71, 0.82)
         );
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--rd-glass-border);
         box-shadow:
-          0 2px 4px rgba(0, 0, 0, 0.03),
-          0 6px 16px rgba(0, 0, 0, 0.06);
+          0 2px 4px rgba(0, 0, 0, 0.04),
+          0 6px 20px rgba(0, 0, 0, 0.06);
         padding-block: 0.9rem;
       }
 
@@ -86,24 +104,28 @@
       }
 
       .card {
-        border: 1px solid var(--rd-border-subtle);
+        border: 1px solid var(--rd-glass-border);
         border-radius: 12px;
-        background: var(--rd-surface);
+        background: var(--rd-glass);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
         box-shadow:
-          0 2px 4px rgba(0, 0, 0, 0.03),
-          0 8px 18px rgba(0, 0, 0, 0.05);
+          0 2px 4px rgba(0, 0, 0, 0.04),
+          0 8px 24px rgba(0, 0, 0, 0.06);
         transition:
           box-shadow 140ms ease-out,
           transform 140ms ease-out,
-          border-color 140ms ease-out;
+          border-color 140ms ease-out,
+          background 140ms ease-out;
       }
 
       .card:hover {
         transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.82);
         box-shadow:
-          0 4px 8px rgba(0, 0, 0, 0.04),
-          0 12px 24px rgba(0, 0, 0, 0.06);
-        border-color: var(--rd-primary-light);
+          0 4px 12px rgba(0, 0, 0, 0.05),
+          0 14px 32px rgba(0, 0, 0, 0.08);
+        border-color: rgba(255, 255, 255, 0.6);
       }
 
       .card-body {
