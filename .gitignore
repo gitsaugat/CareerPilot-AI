@@ -94,3 +94,6 @@ dmypy.json
 
 # Docker / compose
 docker-compose.override.yml
+
+# Uploaded files
+uploads/

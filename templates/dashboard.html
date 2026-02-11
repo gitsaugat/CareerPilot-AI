@@ -9,7 +9,80 @@
       <div class="card-body">
         <h3 class="card-title mb-3">Dashboard</h3>
         <p class="lead">Welcome, {{ username }}!</p>
-        <p>You are now logged in. This is a protected page.</p>
+        <p class="mb-4">You are now logged in. You can upload and manage resumes below.</p>
+
+        <h5 class="mb-3">Upload a resume</h5>
+        <form
+          method="post"
+          action="{{ url_for('upload_resume') }}"
+          enctype="multipart/form-data"
+          class="mb-4"
+        >
+          <div class="mb-3">
+            <label for="name" class="form-label">Resume name (optional)</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              placeholder="e.g. John Doe - Backend Developer"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="resume_text" class="form-label">Resume notes / text (optional)</label>
+            <textarea
+              class="form-control"
+              id="resume_text"
+              name="resume_text"
+              rows="3"
+              placeholder="Paste or write any notes about this resume here..."
+            ></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="resume_file" class="form-label">Resume file (PDF/DOC/DOCX)</label>
+            <input
+              type="file"
+              class="form-control"
+              id="resume_file"
+              name="resume_file"
+              accept=".pdf,.doc,.docx"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Upload resume</button>
+        </form>
+
+        <h5 class="mb-3">Uploaded resumes</h5>
+        {% if resumes %}
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Created at</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for resume in resumes %}
+              <tr>
+                <td>{{ resume.name }}</td>
+                <td>{{ resume.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                  <a
+                    href="{{ url_for('download_resume', resume_id=resume.id) }}"
+                    class="btn btn-sm btn-outline-secondary"
+                    >Download</a
+                  >
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No resumes uploaded yet.</p>
+        {% endif %}
       </div>
     </div>
   </div>
