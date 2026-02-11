@@ -41,29 +41,6 @@
     gap: 0.25rem;
     flex-shrink: 0;
   }
-  .rd-resume-btn {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 6px;
-    text-decoration: none;
-    color: var(--rd-primary, #43a047);
-    background: rgba(67, 160, 71, 0.12);
-    border: none;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-  }
-  .rd-resume-btn:hover {
-    background: rgba(67, 160, 71, 0.22);
-    color: var(--rd-primary-dark, #2e7d32);
-  }
-  .rd-resume-btn-danger {
-    color: #c62828;
-    background: rgba(198, 40, 40, 0.1);
-  }
-  .rd-resume-btn-danger:hover {
-    background: rgba(198, 40, 40, 0.2);
-    color: #b71c1c;
-  }
 </style>
 <div class="row g-4 m-1">
   <!-- Left: two fixed-size cards stacked -->
@@ -141,10 +118,10 @@
                 <span class="rd-resume-name" title="{{ resume.name }}">{{ resume.name }}</span>
               </a>
               <div class="rd-resume-actions">
-                <a href="{{ url_for('dashboard', resume_id=resume.id) }}" class="rd-resume-btn" title="View">View</a>
-                <a href="{{ url_for('download_resume', resume_id=resume.id) }}" class="rd-resume-btn" title="Download">Download</a>
+                <a href="{{ url_for('dashboard', resume_id=resume.id) }}" class="btn btn-sm btn-outline-success" title="View">View</a>
+                <a href="{{ url_for('download_resume', resume_id=resume.id) }}" class="btn btn-sm btn-outline-secondary" title="Download">Download</a>
                 <form method="post" action="{{ url_for('delete_resume', resume_id=resume.id) }}" class="d-inline" onsubmit="return confirm('Delete this resume?');">
-                  <button type="submit" class="rd-resume-btn rd-resume-btn-danger" title="Delete">Delete</button>
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">Delete</button>
                 </form>
               </div>
             </li>

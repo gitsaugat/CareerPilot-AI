@@ -241,6 +241,12 @@ def delete_resume(resume_id: int):
     return redirect(url_for("dashboard"))
 
 
+from rag.main import ResumeAnalyzer
+
+# Initialize Analyzer (uses 'gpt-oss:120b-cloud' by default as per req)
+analyzer = ResumeAnalyzer(model_name="gpt-oss:120b-cloud")
+
+
 @app.route("/compare/<int:resume_id>", methods=["GET", "POST"])
 def compare_resume(resume_id: int):
     if "user_id" not in session:
@@ -261,8 +267,24 @@ def compare_resume(resume_id: int):
             viewer_url = url_for("view_resume_inline", resume_id=resume.id)
 
     job_description_html = ""
+    analysis_results = None
+
     if request.method == "POST":
         job_description_html = request.form.get("job_description", "")
+        
+        # Real AI Analysis
+        if job_description_html.replace("<p>", "").replace("</p>", "").strip():
+            try:
+                # Assuming job_description_html contains HTML, we might want to strip tags
+                # For simplicity, passing it as is, or could use BeautifulSoup. 
+                # The LLM is smart enough to ignore basic HTML tags usually.
+                analysis_results = analyzer.analyze(resume.resume_file_path, job_description_html)
+                if not analysis_results:
+                     flash("Analysis failed. Please try again.", "error")
+            except Exception as e:
+                flash(f"An error occurred during analysis: {e}", "error")
+        else:
+            flash("Please enter a job description.", "error")
 
     return render_template(
         "compare.html",
@@ -270,6 +292,7 @@ def compare_resume(resume_id: int):
         can_preview_pdf=can_preview_pdf,
         viewer_url=viewer_url,
         job_description_html=job_description_html,
+        analysis_results=analysis_results,
     )
 
 
