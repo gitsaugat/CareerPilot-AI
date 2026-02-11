@@ -208,6 +208,38 @@ def delete_resume(resume_id: int):
     return redirect(url_for("dashboard"))
 
 
+@app.route("/compare/<int:resume_id>", methods=["GET", "POST"])
+def compare_resume(resume_id: int):
+    if "user_id" not in session:
+        flash("Please log in to compare resumes.", "error")
+        return redirect(url_for("login"))
+
+    resume = Resume.query.get_or_404(resume_id)
+    if resume.user_id != session["user_id"]:
+        flash("You are not allowed to view this resume.", "error")
+        return redirect(url_for("dashboard"))
+
+    can_preview_pdf = False
+    viewer_url = None
+    if os.path.exists(resume.resume_file_path):
+        ext = Path(resume.resume_file_path).suffix.lower()
+        if ext == ".pdf":
+            can_preview_pdf = True
+            viewer_url = url_for("view_resume_inline", resume_id=resume.id)
+
+    job_description_html = ""
+    if request.method == "POST":
+        job_description_html = request.form.get("job_description", "")
+
+    return render_template(
+        "compare.html",
+        resume=resume,
+        can_preview_pdf=can_preview_pdf,
+        viewer_url=viewer_url,
+        job_description_html=job_description_html,
+    )
+
+
 @app.route("/resumes/<int:resume_id>/view")
 def view_resume_inline(resume_id: int):
     if "user_id" not in session:
