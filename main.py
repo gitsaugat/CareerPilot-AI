@@ -11,6 +11,7 @@ from flask import (
 )
 import os
 import time
+from pathlib import Path
 from werkzeug.utils import secure_filename
 from flask_migrate import Migrate
 
@@ -97,11 +98,32 @@ def dashboard():
     if "user_id" not in session:
         flash("Please log in to access the dashboard.", "error")
         return redirect(url_for("login"))
+
     resumes = Resume.query.order_by(Resume.created_at.desc()).all()
+
+    selected_resume = None
+    can_preview_pdf = False
+    viewer_url = None
+
+    selected_id = request.args.get("resume_id", type=int)
+    if selected_id:
+        selected_resume = Resume.query.get(selected_id)
+    elif resumes:
+        selected_resume = resumes[0]
+
+    if selected_resume and os.path.exists(selected_resume.resume_file_path):
+        ext = Path(selected_resume.resume_file_path).suffix.lower()
+        if ext == ".pdf":
+            can_preview_pdf = True
+            viewer_url = url_for("view_resume_inline", resume_id=selected_resume.id)
+
     return render_template(
         "dashboard.html",
         username=session.get("username"),
         resumes=resumes,
+        selected_resume=selected_resume,
+        can_preview_pdf=can_preview_pdf,
+        viewer_url=viewer_url,
     )
 
 
@@ -133,13 +155,17 @@ def upload_resume():
 
     file.save(full_path)
 
-    resume = Resume(name=name,
-     resume_text=resume_text or "", resume_file_path=full_path, user_id=session["user_id"])
+    resume = Resume(
+        name=name,
+        resume_text=resume_text or "",
+        resume_file_path=full_path,
+        user_id=session["user_id"],
+    )
     db.session.add(resume)
     db.session.commit()
 
     flash("Resume uploaded successfully.", "success")
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("dashboard", resume_id=resume.id))
 
 
 @app.route("/resumes/<int:resume_id>")
@@ -154,6 +180,49 @@ def download_resume(resume_id: int):
 
     download_name = os.path.basename(resume.resume_file_path)
     return send_file(resume.resume_file_path, as_attachment=True, download_name=download_name)
+
+
+@app.route("/resumes/<int:resume_id>/delete", methods=["POST"])
+def delete_resume(resume_id: int):
+    if "user_id" not in session:
+        flash("Please log in to manage resumes.", "error")
+        return redirect(url_for("login"))
+
+    resume = Resume.query.get_or_404(resume_id)
+    if resume.user_id != session["user_id"]:
+        flash("You are not allowed to delete this resume.", "error")
+        return redirect(url_for("dashboard"))
+
+    # Remove file from disk if it still exists
+    if os.path.exists(resume.resume_file_path):
+        try:
+            os.remove(resume.resume_file_path)
+        except OSError:
+            # If deletion fails, we still remove the DB record
+            pass
+
+    db.session.delete(resume)
+    db.session.commit()
+
+    flash("Resume deleted.", "success")
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/resumes/<int:resume_id>/view")
+def view_resume_inline(resume_id: int):
+    if "user_id" not in session:
+        flash("Please log in to access resumes.", "error")
+        return redirect(url_for("login"))
+
+    resume = Resume.query.get_or_404(resume_id)
+    if not os.path.exists(resume.resume_file_path):
+        abort(404)
+
+    ext = Path(resume.resume_file_path).suffix.lower()
+    if ext != ".pdf":
+        abort(415)
+
+    return send_file(resume.resume_file_path, mimetype="application/pdf")
 
 
 @app.route("/logout")
