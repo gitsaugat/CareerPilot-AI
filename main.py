@@ -12,6 +12,7 @@ from flask import (
 import os
 import time
 from werkzeug.utils import secure_filename
+from flask_migrate import Migrate
 
 from extensions import db
 from models import User, Resume
@@ -39,10 +40,7 @@ def allowed_resume_file(filename: str) -> bool:
 
 # Initialize extensions
 db.init_app(app)
-
-# Create tables once at startup
-with app.app_context():
-    db.create_all()
+migrate = Migrate(app, db)
 
 
 @app.route("/")
@@ -135,7 +133,8 @@ def upload_resume():
 
     file.save(full_path)
 
-    resume = Resume(name=name, resume_text=resume_text or "", resume_file_path=full_path)
+    resume = Resume(name=name,
+     resume_text=resume_text or "", resume_file_path=full_path, user_id=session["user_id"])
     db.session.add(resume)
     db.session.commit()
 
