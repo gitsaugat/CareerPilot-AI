@@ -134,18 +134,19 @@
 
     <!-- Sidebar -->
     <aside class="sidebar">
-        <a href="{{ url_for('dashboard') }}" class="sidebar-brand">
+        <a href="{{ url_for('dashboard.dashboard') }}" class="sidebar-brand">
             <i class="bi bi-rocket-takeoff-fill text-primary-emphasis"></i>
             <span>CareerPilot AI</span>
         </a>
 
         <nav class="nav flex-column">
-            <a href="{{ url_for('dashboard') }}"
+            <a href="{{ url_for('dashboard.dashboard') }}"
                 class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
                 <i class="bi bi-grid-1x2-fill"></i>
                 Dashboard
             </a>
-            <a href="{{ url_for('jobs_list') }}" class="nav-link {% if 'jobs' in request.endpoint %}active{% endif %}">
+            <a href="{{ url_for('jobs.jobs_list') }}"
+                class="nav-link {% if 'jobs' in request.endpoint %}active{% endif %}">
                 <i class="bi bi-briefcase-fill"></i>
                 My Applications
             </a>
@@ -153,32 +154,32 @@
             <div class="mt-4 mb-2 px-3 text-uppercase text-secondary fw-bold small"
                 style="font-size: 0.75rem; letter-spacing: 0.05em;">AI Tools</div>
 
-            <a href="{{ url_for('ranking_select') }}"
+            <a href="{{ url_for('tools.ranking_select') }}"
                 class="nav-link {% if 'ranking' in request.endpoint %}active{% endif %}">
                 <i class="bi bi-lightning-charge-fill"></i>
                 Match Analyzer
             </a>
-            <a href="{{ url_for('cover_letter') }}"
+            <a href="{{ url_for('tools.cover_letter') }}"
                 class="nav-link {% if 'cover-letter' in request.endpoint %}active{% endif %}">
                 <i class="bi bi-pen-fill"></i>
                 Cover Letter
             </a>
-            <a href="{{ url_for('interview_prep') }}"
+            <a href="{{ url_for('tools.interview_prep') }}"
                 class="nav-link {% if 'interview-prep' in request.endpoint %}active{% endif %}">
                 <i class="bi bi-mic-fill"></i>
                 Interview Prep
             </a>
-            <a href="{{ url_for('networking') }}"
+            <a href="{{ url_for('tools.networking') }}"
                 class="nav-link {% if 'networking' in request.endpoint %}active{% endif %}">
                 <i class="bi bi-people-fill"></i>
                 Networking
             </a>
-            <a href="{{ url_for('linkedin') }}"
+            <a href="{{ url_for('tools.linkedin') }}"
                 class="nav-link {% if 'linkedin' in request.endpoint %}active{% endif %}">
                 <i class="bi bi-linkedin"></i>
                 LinkedIn Profile
             </a>
-            <a href="{{ url_for('negotiation') }}"
+            <a href="{{ url_for('tools.negotiation') }}"
                 class="nav-link {% if 'negotiation' in request.endpoint %}active{% endif %}">
                 <i class="bi bi-cash-coin"></i>
                 Negotiation
@@ -199,7 +200,7 @@
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-                    <li><a class="dropdown-item" href="{{ url_for('logout') }}">Sign out</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Sign out</a></li>
                 </ul>
             </div>
         </div>

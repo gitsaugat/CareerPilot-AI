@@ -19,7 +19,7 @@
             <i class="bi bi-cloud-arrow-up-fill"></i>
             <span>Upload Resume</span>
           </button>
-          <a href="{{ url_for('jobs_create') }}"
+          <a href="{{ url_for('jobs.jobs_create') }}"
             class="btn btn-outline-dark btn-lg shadow-sm d-flex align-items-center gap-2">
             <i class="bi bi-plus-lg"></i>
             <span>Track Job</span>
@@ -85,7 +85,7 @@
       <div class="card border-0 shadow-sm h-100">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center sticky-top">
           <h5 class="fw-bold mb-0">Recent Activity</h5>
-          <a href="{{ url_for('jobs_create') }}" class="btn btn-sm btn-primary rounded-pill">
+          <a href="{{ url_for('jobs.jobs_create') }}" class="btn btn-sm btn-primary rounded-pill">
             <i class="bi bi-plus-lg me-1"></i> Add
           </a>
         </div>
@@ -149,7 +149,7 @@
           </div>
         </div>
         <div class="card-footer bg-white border-top text-center py-3">
-          <a href="{{ url_for('jobs_list') }}" class="text-decoration-none fw-bold small">View All Applications</a>
+          <a href="{{ url_for('jobs.jobs_list') }}" class="text-decoration-none fw-bold small">View All Applications</a>
         </div>
       </div>
     </div>
@@ -180,15 +180,16 @@
                   <i class="bi bi-three-dots-vertical"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
-                  <li><a class="dropdown-item" href="{{ url_for('compare_resume', resume_id=resume.id) }}"><i
+                  <li><a class="dropdown-item" href="{{ url_for('tools.compare_resume', resume_id=resume.id) }}"><i
                         class="bi bi-lightning-fill me-2"></i>Analyze Match</a></li>
-                  <li><a class="dropdown-item" href="{{ url_for('download_resume', resume_id=resume.id) }}"><i
+                  <li><a class="dropdown-item" href="{{ url_for('resumes.download_resume', resume_id=resume.id) }}"><i
                         class="bi bi-download me-2"></i>Download</a></li>
                   <li>
                     <hr class="dropdown-divider">
                   </li>
                   <li>
-                    <form action="{{ url_for('delete_resume', resume_id=resume.id) }}" method="post" class="d-inline">
+                    <form action="{{ url_for('resumes.delete_resume', resume_id=resume.id) }}" method="post"
+                      class="d-inline">
                       <button type="submit" class="dropdown-item text-danger"><i
                           class="bi bi-trash me-2"></i>Delete</button>
                     </form>
@@ -222,12 +223,12 @@
             </div>
           </div>
           <div class="d-grid gap-3">
-            <a href="{{ url_for('jobs_list') }}"
+            <a href="{{ url_for('tools.cover_letter') }}"
               class="btn btn-light btn-sm text-start d-flex justify-content-between align-items-center">
               <span><i class="bi bi-pen me-2"></i>Write Cover Letter</span>
               <i class="bi bi-chevron-right small text-muted"></i>
             </a>
-            <a href="{{ url_for('jobs_list') }}"
+            <a href="{{ url_for('tools.interview_prep') }}"
               class="btn btn-light btn-sm text-start d-flex justify-content-between align-items-center">
               <span><i class="bi bi-mic me-2"></i>Interview Prep</span>
               <i class="bi bi-chevron-right small text-muted"></i>
@@ -248,7 +249,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body pt-4">
-        <form method="post" action="{{ url_for('upload_resume') }}" enctype="multipart/form-data">
+        <form method="post" action="{{ url_for('resumes.upload_resume') }}" enctype="multipart/form-data">
           <div class="mb-4">
             <label for="name" class="form-label fw-bold small text-uppercase text-secondary">Label / Version
               Name</label>

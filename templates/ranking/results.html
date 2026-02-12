@@ -8,7 +8,7 @@
         <h2 class="h3 fw-bold text-dark mb-1">Match Report</h2>
         <p class="text-secondary mb-0">Comparison for target job: <strong>{{ job.title }}</strong></p>
     </div>
-    <a href="{{ url_for('ranking_select') }}" class="btn btn-outline-primary shadow-sm">
+    <a href="{{ url_for('tools.ranking_select') }}" class="btn btn-outline-primary shadow-sm">
         New Check
     </a>
 </div>
@@ -58,7 +58,7 @@
                             <p class="mb-0 small text-secondary line-clamp-2">{{ result.summary }}</p>
                         </td>
                         <td class="pe-4 text-end">
-                            <a href="{{ url_for('compare_resume', resume_id=result.resume.id) }}"
+                            <a href="{{ url_for('tools.compare_resume', resume_id=result.resume.id) }}"
                                 class="btn btn-sm btn-primary">
                                 Details
                             </a>

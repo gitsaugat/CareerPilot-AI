@@ -35,7 +35,8 @@
                     {% else %}
                     <div class="text-center py-4 text-muted">
                         <p>No target jobs found.</p>
-                        <a href="{{ url_for('jobs_create') }}" class="btn btn-sm btn-outline-primary">Add Target Job</a>
+                        <a href="{{ url_for('jobs.jobs_create') }}" class="btn btn-sm btn-outline-primary">Add Target
+                            Job</a>
                     </div>
                     {% endif %}
                 </div>
@@ -77,7 +78,7 @@
                                         </div>
                                     </td>
                                     <td class="pe-4 text-end">
-                                        <a href="{{ url_for('view_resume_inline', resume_id=resume.id) }}"
+                                        <a href="{{ url_for('resumes.view_resume_inline', resume_id=resume.id) }}"
                                             target="_blank" class="btn btn-sm btn-light border">
                                             <i class="bi bi-eye"></i> View
                                         </a>
@@ -90,7 +91,7 @@
                     {% else %}
                     <div class="text-center py-5 text-muted">
                         <p>No resume versions found.</p>
-                        <a href="{{ url_for('upload_resume') }}" class="btn btn-sm btn-outline-primary">Upload
+                        <a href="{{ url_for('resumes.upload_resume') }}" class="btn btn-sm btn-outline-primary">Upload
                             New Version</a>
                     </div>
                     {% endif %}
