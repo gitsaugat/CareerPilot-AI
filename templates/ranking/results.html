@@ -1,0 +1,77 @@
+{% extends "layouts/base_app.html" %}
+
+{% block title %}Ranking Results - RAG ATS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h3 fw-bold text-dark mb-1">Ranking Results</h2>
+        <p class="text-secondary mb-0">Candidates ranked for <strong>{{ job.title }}</strong></p>
+    </div>
+    <a href="{{ url_for('ranking_select') }}" class="btn btn-outline-primary shadow-sm">
+        New Ranking
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-secondary text-uppercase small fw-bold">Rank</th>
+                        <th class="py-3 text-secondary text-uppercase small fw-bold">Score</th>
+                        <th class="py-3 text-secondary text-uppercase small fw-bold">Candidate</th>
+                        <th class="py-3 text-secondary text-uppercase small fw-bold" style="width: 40%;">Summary</th>
+                        <th class="pe-4 py-3 text-end text-secondary text-uppercase small fw-bold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr class="{% if loop.first %}bg-success bg-opacity-10{% endif %}">
+                        <td class="ps-4 fw-bold fs-5 text-secondary">
+                            #{{ loop.index }}
+                            {% if loop.first %}<i class="bi bi-trophy-fill text-warning ms-1"></i>{% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span
+                                    class="fw-bold fs-5 me-2 {% if result.score >= 80 %}text-success{% elif result.score >= 50 %}text-warning{% else %}text-danger{% endif %}">{{
+                                    result.score }}%</span>
+                                <div class="progress flex-grow-1" style="height: 6px; width: 60px;">
+                                    <div class="progress-bar {% if result.score >= 80 %}bg-success{% elif result.score >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                                        role="progressbar" style="width: {{ result.score }}%"
+                                        aria-valuenow="{{ result.score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-white border rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold"
+                                    style="width: 40px; height: 40px;">
+                                    {{ result.resume.filename[0:2].upper() }}
+                                </div>
+                                <span class="fw-semibold text-dark">{{ result.resume.filename }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <p class="mb-0 small text-secondary line-clamp-2">{{ result.summary }}</p>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <a href="{{ url_for('compare_resume', resume_id=result.resume.id) }}"
+                                class="btn btn-sm btn-primary">
+                                Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">No results found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

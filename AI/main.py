@@ -55,8 +55,8 @@ class ResumeAnalyzer:
         - "matching_keywords": A list of strings (skills/keywords present in both).
         - "missing_keywords": A list of strings (skills/keywords in JD but missing in Resume).
         - "recommendations": A list of strings (3-5 actionable tips to improve the resume for this job).
-
-        Ensure the response is purely valid JSON, no markdown formatting.
+        - "Updated resume" : A newly revised resume based on the job description. Use MARKDOWN format for this field (headers, bullet points, bold text) to make it look professional.
+        Ensure the response is purely valid JSON, no markdown formatting outside the JSON structure.
         """
 
         try:
@@ -68,12 +68,10 @@ class ResumeAnalyzer:
             )
             
             content = response['message']['content']
-            # Parse JSON
             try:
                 result = json.loads(content)
                 return result
             except json.JSONDecodeError:
-                # Fallback if raw text has markdown code blocks
                 if "```json" in content:
                     content = content.split("```json")[1].split("```")[0]
                     return json.loads(content)

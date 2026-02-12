@@ -1,0 +1,116 @@
+{% extends "layouts/base_app.html" %}
+
+{% block title %}Rank Candidates - RAG ATS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h3 fw-bold text-dark mb-1">Rank Candidates</h2>
+        <p class="text-secondary mb-0">Select a job and candidate pool to find the best match.</p>
+    </div>
+</div>
+
+<form method="post">
+    <div class="row g-4">
+        <!-- Step 1: Select Job -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="card-title mb-0 fw-bold">1. Select Job</h5>
+                </div>
+                <div class="card-body">
+                    {% if jobs %}
+                    <div class="list-group list-group-flush">
+                        {% for job in jobs %}
+                        <label class="list-group-item d-flex gap-3 align-items-center" style="cursor: pointer;">
+                            <input class="form-check-input flex-shrink-0" type="radio" name="job_id"
+                                value="{{ job.id }}" required>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">{{ job.title }}</h6>
+                                <small class="text-muted">{{ job.created_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <p>No saved jobs found.</p>
+                        <a href="{{ url_for('jobs_create') }}" class="btn btn-sm btn-outline-primary">Create Job</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Select Candidates -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fw-bold">2. Select Candidates</h5>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="selectAll">
+                        <label class="form-check-label small fw-bold text-secondary" for="selectAll">Select All</label>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if resumes %}
+                    <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0">
+                            <tbody>
+                                {% for resume in resumes %}
+                                <tr>
+                                    <td class="ps-4" style="width: 40px;">
+                                        <input class="form-check-input resume-checkbox" type="checkbox"
+                                            name="resume_ids" value="{{ resume.id }}">
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar bg-light text-primary rounded-circle me-3 d-flex align-items-center justify-content-center border"
+                                                style="width: 36px; height: 36px;">
+                                                {{ resume.filename[0:2].upper() }}
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 text-dark">{{ resume.filename }}</h6>
+                                                <small class="text-muted">Uploaded {{
+                                                    resume.upload_date.strftime('%Y-%m-%d') }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        <a href="{{ url_for('view_resume_inline', resume_id=resume.id) }}"
+                                            target="_blank" class="btn btn-sm btn-light border">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <p>No candidates available.</p>
+                        <a href="{{ url_for('upload_resume') }}" class="btn btn-sm btn-outline-primary">Upload
+                            Candidates</a>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white border-top py-3 text-end">
+                    <button type="submit" class="btn btn-primary px-4 fw-medium">
+                        <i class="bi bi-lightning-fill me-1"></i> Rank Candidates
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    document.getElementById('selectAll').addEventListener('change', function () {
+        var checkboxes = document.querySelectorAll('.resume-checkbox');
+        for (var checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    });
+</script>
+{% endblock %}

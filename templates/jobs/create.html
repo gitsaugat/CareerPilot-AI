@@ -1,0 +1,122 @@
+{% extends "layouts/base_app.html" %}
+
+{% block title %}Create Job - RAG ATS{% endblock %}
+
+{% block head %}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex align-items-center mb-4">
+            <a href="{{ url_for('jobs_list') }}" class="btn btn-light border me-3">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="h3 fw-bold text-dark mb-1">Create New Job</h2>
+                <p class="text-secondary mb-0">Add a new job description to your library.</p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="post" id="job-form">
+                    <div class="mb-4 bg-light p-3 rounded border">
+                        <label class="form-label fw-bold small text-uppercase text-secondary">Import from URL</label>
+                        <div class="input-group">
+                            <input type="url" class="form-control" id="job_url"
+                                placeholder="Paste LinkedIn / Indeed / Glassdoor URL...">
+                            <button class="btn btn-outline-primary" type="button" id="import_btn">
+                                <i class="bi bi-magic me-1"></i> Auto-Fill
+                            </button>
+                        </div>
+                        <div class="form-text">Paste a public job listing URL to automatically extract details.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title" class="form-label fw-bold">Job Title</label>
+                        <input type="text" class="form-control form-control-lg" id="title" name="title"
+                            placeholder="e.g. Senior Python Developer" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Job Description</label>
+                        <input type="hidden" name="description" id="description_input">
+                        <div id="editor" style="height: 300px;"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('jobs_list') }}" class="btn btn-light border">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">Create Job</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: 'Paste or type the job description/requirements here...'
+        });
+
+        var form = document.querySelector("#job-form");
+        var hiddenInput = document.getElementById("description_input");
+        var importBtn = document.getElementById("import_btn");
+        var urlInput = document.getElementById("job_url");
+        var titleInput = document.getElementById("title");
+
+        // Form Submit Handler
+        form.addEventListener("submit", function () {
+            hiddenInput.value = quill.root.innerHTML;
+        });
+
+        // Import Button Handler
+        importBtn.addEventListener("click", function () {
+            var url = urlInput.value.trim();
+            if (!url) {
+                alert("Please paste a URL first.");
+                return;
+            }
+
+            // Show loading state
+            var originalText = importBtn.innerHTML;
+            importBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Extracting...';
+            importBtn.disabled = true;
+
+            fetch("/api/extract-job", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ url: url })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert("Error: " + data.error);
+                    } else {
+                        if (data.title) titleInput.value = data.title;
+                        if (data.description) quill.root.innerHTML = data.description; // Quill handles HTML
+                        // If description is plain text, quill.setText(data.description) might be better, 
+                        // but scraper likely returns text. HTML is safer to stick to innerHTML if AI formats it.
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("An unexpected error occurred.");
+                })
+                .finally(() => {
+                    importBtn.innerHTML = originalText;
+                    importBtn.disabled = false;
+                });
+        });
+    });
+</script>
+{% endblock %}
