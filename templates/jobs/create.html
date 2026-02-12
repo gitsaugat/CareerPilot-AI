@@ -1,6 +1,6 @@
 {% extends "layouts/base_app.html" %}
 
-{% block title %}Create Job - RAG ATS{% endblock %}
+{% block title %}Create Job - CareerPilot AI{% endblock %}
 
 {% block head %}
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
@@ -25,7 +25,7 @@
                     <div class="mb-4 bg-light p-3 rounded border">
                         <label class="form-label fw-bold small text-uppercase text-secondary">Import from URL</label>
                         <div class="input-group">
-                            <input type="url" class="form-control" id="job_url"
+                            <input type="url" class="form-control" id="job_url" name="job_url"
                                 placeholder="Paste LinkedIn / Indeed / Glassdoor URL...">
                             <button class="btn btn-outline-primary" type="button" id="import_btn">
                                 <i class="bi bi-magic me-1"></i> Auto-Fill
@@ -34,10 +34,56 @@
                         <div class="form-text">Paste a public job listing URL to automatically extract details.</div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="title" class="form-label fw-bold">Job Title</label>
-                        <input type="text" class="form-control form-control-lg" id="title" name="title"
-                            placeholder="e.g. Senior Python Developer" required>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="title" class="form-label fw-bold">Job Title *</label>
+                            <input type="text" class="form-control" id="title" name="title"
+                                placeholder="e.g. Senior Python Developer" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="company" class="form-label fw-bold">Company *</label>
+                            <input type="text" class="form-control" id="company" name="company"
+                                placeholder="e.g. Tech Corp" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="location" class="form-label fw-bold">Location</label>
+                            <input type="text" class="form-control" id="location" name="location"
+                                placeholder="e.g. Remote, New York, NY">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="salary_range" class="form-label fw-bold">Salary Range</label>
+                            <input type="text" class="form-control" id="salary_range" name="salary_range"
+                                placeholder="e.g. $120k - $150k">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label for="status" class="form-label fw-bold">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="Saved">Saved</option>
+                                <option value="Applied" selected>Applied</option>
+                                <option value="Interviewing">Interviewing</option>
+                                <option value="Offer">Offer</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="resume_id" class="form-label fw-bold">Resume Used</label>
+                            <select class="form-select" id="resume_id" name="resume_id">
+                                <option value="" selected>Select Resume...</option>
+                                {% for resume in resumes %}
+                                <option value="{{ resume.id }}">{{ resume.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="interview_date" class="form-label fw-bold">Interview Date</label>
+                            <input type="date" class="form-control" id="interview_date" name="interview_date">
+                        </div>
                     </div>
 
                     <div class="mb-4">
@@ -46,9 +92,15 @@
                         <div id="editor" style="height: 300px;"></div>
                     </div>
 
+                    <div class="mb-4">
+                        <label for="notes" class="form-label fw-bold">My Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"
+                            placeholder="Private notes about this application..."></textarea>
+                    </div>
+
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{{ url_for('jobs_list') }}" class="btn btn-light border">Cancel</a>
-                        <button type="submit" class="btn btn-primary px-4">Create Job</button>
+                        <button type="submit" class="btn btn-primary px-4">Save Job</button>
                     </div>
                 </form>
             </div>

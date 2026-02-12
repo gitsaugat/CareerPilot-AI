@@ -1,6 +1,6 @@
 {% extends "layouts/base_app.html" %}
 
-{% block title %}{{ job.title }} - RAG ATS{% endblock %}
+{% block title %}{{ job.title }} - CareerPilot AI{% endblock %}
 
 {% block content %}
 <div class="d-flex align-items-center mb-4">
@@ -12,7 +12,12 @@
         <p class="text-secondary mb-0">Created on {{ job.created_at.strftime('%B %d, %Y') }}</p>
     </div>
     <div class="ms-auto">
-        <!-- Future: Edit/Delete buttons -->
+        <form action="{{ url_for('delete_job', job_id=job.id) }}" method="POST"
+            onsubmit="return confirm('Are you sure you want to delete this job?');">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash me-1"></i> Delete Job
+            </button>
+        </form>
     </div>
 </div>
 
@@ -31,15 +36,97 @@
     </div>
 
     <div class="col-lg-4">
+        <!-- Job Details Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="card-title mb-0 fw-bold">Job Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="small text-secondary fw-bold text-uppercase">Company</label>
+                    <div class="fw-bold text-dark">{{ job.company }}</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small text-secondary fw-bold text-uppercase">Status</label>
+                    <div>
+                        {% set badge_class = 'bg-secondary' %}
+                        {% if job.status == 'Applied' %}
+                        {% set badge_class = 'bg-primary' %}
+                        {% elif job.status == 'Interviewing' %}
+                        {% set badge_class = 'bg-warning text-dark' %}
+                        {% elif job.status == 'Offer' %}
+                        {% set badge_class = 'bg-success' %}
+                        {% elif job.status == 'Rejected' %}
+                        {% set badge_class = 'bg-danger' %}
+                        {% endif %}
+                        <span
+                            class="badge {{ badge_class }} bg-opacity-10 text-{{ badge_class | replace('bg-', '') if 'text-dark' not in badge_class else 'dark' }} border border-{{ badge_class | replace('bg-', '') if 'text-dark' not in badge_class else 'warning' }} border-opacity-25 px-2 py-1">
+                            {{ job.status }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small text-secondary fw-bold text-uppercase">Location</label>
+                    <div class="text-dark">{{ job.location or 'Not specified' }}</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="small text-secondary fw-bold text-uppercase">Salary Range</label>
+                    <div class="text-dark">{{ job.salary_range or 'Not specified' }}</div>
+                </div>
+
+                {% if job.interview_date %}
+                <div class="mb-3">
+                    <label class="small text-secondary fw-bold text-uppercase">Interview Date</label>
+                    <div class="text-primary fw-bold">
+                        <i class="bi bi-calendar-event me-1"></i>
+                        {{ job.interview_date.strftime('%b %d, %Y') }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if job.resume_id and resume %}
+                <div class="mb-3">
+                    <label class="small text-secondary fw-bold text-uppercase">Resume Used</label>
+                    <div>
+                        <a href="{{ url_for('view_resume_inline', resume_id=resume.id) }}" target="_blank"
+                            class="text-decoration-none">
+                            <i class="bi bi-file-earmark-text me-1"></i> {{ resume.name }}
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if job.job_url %}
+                <div class="mt-4">
+                    <a href="{{ job.job_url }}" target="_blank" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> View Posting
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions Card -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white py-3 border-bottom">
                 <h5 class="card-title mb-0 fw-bold">Actions</h5>
             </div>
             <div class="card-body">
-                <p class="text-muted small">Compare candidates against this job description.</p>
-                <a href="#" class="btn btn-primary w-100">
-                    <i class="bi bi-people-fill me-1"></i> Find Candidates
-                </a>
+                <p class="text-muted small">AI Tools for this application.</p>
+                <div class="d-grid gap-2">
+                    <!-- Future: Cover Letter, Interview Prep linked to this job specifically -->
+                    <button class="btn btn-light text-start border" disabled>
+                        <i class="bi bi-pencil-square me-2"></i> Generate Cover Letter
+                        <small class="d-block text-muted ms-4" style="font-size: 0.75rem;">Coming soon</small>
+                    </button>
+                    <button class="btn btn-light text-start border" disabled>
+                        <i class="bi bi-mic me-2"></i> Interview Prep
+                        <small class="d-block text-muted ms-4" style="font-size: 0.75rem;">Coming soon</small>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

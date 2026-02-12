@@ -1,81 +1,104 @@
-{% extends "layouts/base_app.html" %}
+{% extends "layouts/auth_base.html" %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Register | RAG ATS{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
+<div class="row justify-content-center w-100">
   <div class="col-md-8 col-lg-6">
-    <div class="card shadow-sm">
+    <div class="text-center mb-4">
+      <div
+        class="bg-primary text-white rounded-3 d-inline-flex align-items-center justify-content-center mb-3 shadow-sm"
+        style="width: 56px; height: 56px;">
+        <i class="bi bi-briefcase-fill fs-3"></i>
+      </div>
+      <h1 class="h3 fw-bold text-dark">Create your account</h1>
+      <p class="text-secondary">Join thousands of candidates landing their dream jobs.</p>
+    </div>
+
+    <div class="card auth-card bg-white p-4">
       <div class="card-body">
-        <h3 class="card-title mb-3 text-center">Register</h3>
         <form method="post">
-          <div class="row g-2">
+          <h6 class="fw-bold text-uppercase small text-muted mb-3">Account Details</h6>
+          <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label for="username" class="form-label">Username</label>
-              <input type="text" class="form-control" id="username" name="username" required />
+              <label for="username" class="form-label small fw-bold text-secondary">Username</label>
+              <input type="text" class="form-control bg-light border-0" id="username" name="username"
+                placeholder="johndoe" required />
             </div>
             <div class="col-md-6">
-              <label for="email" class="form-label">Email</label>
-              <input type="email" class="form-control" id="email" name="email" required />
+              <label for="email" class="form-label small fw-bold text-secondary">Email</label>
+              <input type="email" class="form-control bg-light border-0" id="email" name="email"
+                placeholder="john@example.com" required />
             </div>
           </div>
-          <div class="row g-2 mt-1">
+          <div class="row g-3 mb-4">
             <div class="col-md-6">
-              <label for="password" class="form-label">Password</label>
-              <input type="password" class="form-control" id="password" name="password" required />
+              <label for="password" class="form-label small fw-bold text-secondary">Password</label>
+              <input type="password" class="form-control bg-light border-0" id="password" name="password"
+                placeholder="••••••••" required />
             </div>
             <div class="col-md-6">
-              <label for="confirm" class="form-label">Confirm Password</label>
-              <input type="password" class="form-control" id="confirm" name="confirm" required />
+              <label for="confirm" class="form-label small fw-bold text-secondary">Confirm Password</label>
+              <input type="password" class="form-control bg-light border-0" id="confirm" name="confirm"
+                placeholder="••••••••" required />
             </div>
           </div>
-          <div class="mt-2">
-            <label for="phone" class="form-label">Phone</label>
-            <input type="text" class="form-control" id="phone" name="phone" placeholder="e.g. +1 234 567 8900"
-              required />
+
+          <h6 class="fw-bold text-uppercase small text-muted mb-3 border-top pt-3">Personal & Location</h6>
+          <div class="mb-3">
+            <label for="phone" class="form-label small fw-bold text-secondary">Phone</label>
+            <input type="text" class="form-control bg-light border-0" id="phone" name="phone"
+              placeholder="+1 (555) 000-0000" required />
           </div>
-          <div class="mt-2">
-            <label for="address" class="form-label">Address</label>
-            <input type="text" class="form-control" id="address" name="address" placeholder="Street address" required />
+          <div class="mb-3">
+            <label for="address" class="form-label small fw-bold text-secondary">Address</label>
+            <input type="text" class="form-control bg-light border-0" id="address" name="address"
+              placeholder="123 Main St" required />
           </div>
-          <div class="row g-2 mt-1">
+          <div class="row g-3 mb-3">
             <div class="col-md-4">
-              <label for="city" class="form-label">City</label>
-              <input type="text" class="form-control" id="city" name="city" required />
+              <label for="city" class="form-label small fw-bold text-secondary">City</label>
+              <input type="text" class="form-control bg-light border-0" id="city" name="city" placeholder="New York"
+                required />
             </div>
             <div class="col-md-4">
-              <label for="state" class="form-label">State / Province</label>
-              <input type="text" class="form-control" id="state" name="state" required />
+              <label for="state" class="form-label small fw-bold text-secondary">State</label>
+              <input type="text" class="form-control bg-light border-0" id="state" name="state" placeholder="NY"
+                required />
             </div>
             <div class="col-md-4">
-              <label for="zip_code" class="form-label">ZIP / Postal code</label>
-              <input type="text" class="form-control" id="zip_code" name="zip_code" required />
+              <label for="zip_code" class="form-label small fw-bold text-secondary">ZIP</label>
+              <input type="text" class="form-control bg-light border-0" id="zip_code" name="zip_code"
+                placeholder="10001" required />
             </div>
           </div>
-          <div class="row g-2 mt-1">
+          <div class="row g-3 mb-4">
             <div class="col-md-6">
-              <label for="country" class="form-label">Country</label>
-              <input type="text" class="form-control" id="country" name="country" required />
+              <label for="country" class="form-label small fw-bold text-secondary">Country</label>
+              <input type="text" class="form-control bg-light border-0" id="country" name="country" placeholder="USA"
+                required />
             </div>
             <div class="col-md-6">
-              <label for="role" class="form-label">Role</label>
-              <select class="form-select" id="role" name="role" required>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
+              <label for="role" class="form-label small fw-bold text-secondary">Role</label>
+              <select class="form-select bg-light border-0" id="role" name="role" required>
+                <option value="user">Candidate</option>
                 <option value="recruiter">Recruiter</option>
+                <option value="admin">Admin</option>
               </select>
             </div>
           </div>
-          <div class="mt-3">
-            <button type="submit" class="btn btn-primary w-100">Sign up</button>
+
+          <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary py-2 shadow-sm">Create Account</button>
           </div>
         </form>
-        <p class="mt-3 mb-0 text-center">
-          Already have an account?
-          <a href="{{ url_for('login') }}">Log in</a>
-        </p>
       </div>
     </div>
+
+    <p class="mt-4 text-center text-secondary small">
+      Already have an account?
+      <a href="{{ url_for('login') }}" class="fw-bold text-primary text-decoration-none">Log in</a>
+    </p>
   </div>
 </div>
 {% endblock %}

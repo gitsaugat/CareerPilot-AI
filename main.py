@@ -284,24 +284,41 @@ def jobs_create():
     if "user_id" not in session:
         return redirect(url_for("login"))
         
+    user_id = session["user_id"]
+    
     if request.method == "POST":
         title = request.form.get("title")
         description = request.form.get("description")
         company = request.form.get("company")
         job_url = request.form.get("job_url")
         status = request.form.get("status", "Saved")
+        location = request.form.get("location")
+        salary_range = request.form.get("salary_range")
         notes = request.form.get("notes")
+        resume_id = request.form.get("resume_id")
+        interview_date_str = request.form.get("interview_date")
         
-        if title and description:
+        interview_date = None
+        if interview_date_str:
+            try:
+                interview_date = datetime.strptime(interview_date_str, "%Y-%m-%d")
+            except ValueError:
+                pass # Handle error or ignore
+
+        if title: # Description might be empty if just tracking a link initially
             try:
                 new_job = Job(
                     title=title, 
-                    description=description, 
+                    description=description or "", 
                     company=company,
                     job_url=job_url,
                     status=status,
+                    location=location,
+                    salary_range=salary_range,
                     notes=notes,
-                    user_id=session["user_id"]
+                    resume_id=int(resume_id) if resume_id else None,
+                    interview_date=interview_date,
+                    user_id=user_id
                 )
                 db.session.add(new_job)
                 db.session.commit()
@@ -311,9 +328,11 @@ def jobs_create():
                 db.session.rollback()
                 flash(f"Error creating job: {e}", "error")
         else:
-            flash("Please fill in all fields.", "error")
+            flash("Job title is required.", "error")
             
-    return render_template("jobs/create.html")
+    # Fetch resumes for the dropdown
+    resumes = Resume.query.filter_by(user_id=user_id).all()
+    return render_template("jobs/create.html", resumes=resumes)
 
 @app.route("/jobs/<int:job_id>")
 def jobs_detail(job_id):
@@ -325,7 +344,29 @@ def jobs_detail(job_id):
         flash("Access denied.", "error")
         return redirect(url_for("jobs_list"))
         
-    return render_template("jobs/detail.html", job=job)
+    resume = Resume.query.get(job.resume_id) if job.resume_id else None
+        
+    return render_template("jobs/detail.html", job=job, resume=resume)
+
+@app.route("/jobs/<int:job_id>/delete", methods=["POST"])
+def delete_job(job_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+        
+    job = Job.query.get_or_404(job_id)
+    if job.user_id != session["user_id"]:
+        flash("Access denied.", "error")
+        return redirect(url_for("jobs_list"))
+        
+    try:
+        db.session.delete(job)
+        db.session.commit()
+        flash("Job deleted successfully.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting job: {e}", "error")
+        
+    return redirect(url_for("jobs_list"))
 
 # --- End Job Routes ---
 
