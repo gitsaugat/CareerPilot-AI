@@ -17,6 +17,7 @@ from flask_migrate import Migrate
 
 from extensions import db
 from models import User, Resume
+from models.job import Job
 
 app = Flask(__name__)
 
@@ -253,7 +254,7 @@ def markdown_filter(text):
     return md.render(text) if text else ""
 
 
-from models.job import Job
+
 
 # ... (Existing imports)
 
@@ -275,10 +276,22 @@ def jobs_create():
     if request.method == "POST":
         title = request.form.get("title")
         description = request.form.get("description")
+        company = request.form.get("company")
+        job_url = request.form.get("job_url")
+        status = request.form.get("status", "Saved")
+        notes = request.form.get("notes")
         
         if title and description:
             try:
-                new_job = Job(title=title, description=description, user_id=session["user_id"])
+                new_job = Job(
+                    title=title, 
+                    description=description, 
+                    company=company,
+                    job_url=job_url,
+                    status=status,
+                    notes=notes,
+                    user_id=session["user_id"]
+                )
                 db.session.add(new_job)
                 db.session.commit()
                 flash("Job created successfully!", "success")
@@ -324,7 +337,7 @@ def ranking_select():
 
     # GET: Show Selection Form
     jobs = Job.query.filter_by(user_id=session["user_id"]).order_by(Job.created_at.desc()).all()
-    resumes = Resume.query.filter_by(user_id=session["user_id"]).order_by(Resume.upload_date.desc()).all()
+    resumes = Resume.query.filter_by(user_id=session["user_id"]).order_by(Resume.created_at.desc()).all()
     return render_template("ranking/select.html", jobs=jobs, resumes=resumes)
 
 @app.route("/ranking/process")
@@ -475,6 +488,69 @@ def api_extract_job():
         return jsonify(extracted_data)
     else:
         return jsonify({"error": "Failed to extract job info."}), 500
+@app.route("/cover-letter", methods=["GET", "POST"])
+def cover_letter():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+        
+    user_id = session["user_id"]
+    resumes = Resume.query.filter_by(user_id=user_id).all()
+    jobs = Job.query.filter_by(user_id=user_id).all()
+    
+    generated_letter = None
+    selected_resume_id = None
+    job_description = ""
+    
+    if request.method == "POST":
+        resume_id = request.form.get("resume_id")
+        job_description = request.form.get("job_description")
+        
+        if resume_id and job_description:
+            selected_resume_id = int(resume_id)
+            resume = Resume.query.get(resume_id)
+            if resume and resume.user_id == user_id:
+                # Generate Cover Letter
+                generated_letter = analyzer.generate_cover_letter(resume.resume_file_path, job_description)
+                if not generated_letter:
+                    flash("Failed to generate cover letter. Please try again.", "error")
+            else:
+                flash("Invalid resume selected.", "error")
+        else:
+            flash("Please select a resume and provide a job description.", "error")
+            
+    return render_template("tools/cover_letter.html", resumes=resumes, jobs=jobs, generated_letter=generated_letter, selected_resume_id=selected_resume_id, job_description=job_description)
+
+@app.route("/interview-prep", methods=["GET", "POST"])
+def interview_prep():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+        
+    user_id = session["user_id"]
+    resumes = Resume.query.filter_by(user_id=user_id).all()
+    jobs = Job.query.filter_by(user_id=user_id).all()
+    
+    prep_material = None
+    selected_resume_id = None
+    job_description = ""
+    
+    if request.method == "POST":
+        resume_id = request.form.get("resume_id")
+        job_description = request.form.get("job_description")
+        
+        if resume_id and job_description:
+            selected_resume_id = int(resume_id)
+            resume = Resume.query.get(resume_id)
+            if resume and resume.user_id == user_id:
+                # Generate Interview Prep
+                prep_material = analyzer.generate_interview_prep(resume.resume_file_path, job_description)
+                if not prep_material:
+                    flash("Failed to generate interview prep material. Please try again.", "error")
+            else:
+                flash("Invalid resume selected.", "error")
+        else:
+            flash("Please select a resume and provide a job description.", "error")
+            
+    return render_template("tools/interview_prep.html", resumes=resumes, jobs=jobs, prep_material=prep_material, selected_resume_id=selected_resume_id, job_description=job_description)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,218 @@
+{% extends "layouts/base_app.html" %}
+
+{% block title %}Interview Prep Coach{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h3 fw-bold text-dark mb-0">Interview Prep Coach</h2>
+        <p class="text-secondary mb-0">Get matched questions and star answers.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Input Column -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="card-title mb-0 fw-bold text-uppercase small tracking-wide">Context</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" id="ip-form">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-uppercase text-muted">1. Select Resume</label>
+                        <select class="form-select" name="resume_id" required>
+                            <option value="" disabled selected>Choose a resume...</option>
+                            {% for r in resumes %}
+                            <option value="{{ r.id }}" {% if selected_resume_id==r.id %}selected{% endif %}>{{ r.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-0">2. Job
+                                Description</label>
+                            <div class="dropdown">
+                                <button class="btn btn-xs btn-link text-decoration-none dropdown-toggle p-0"
+                                    type="button" data-bs-toggle="dropdown">
+                                    Load Saved
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                                    style="max-height: 200px; overflow-y: auto;">
+                                    {% if jobs %}
+                                    {% for job in jobs %}
+                                    <li><a class="dropdown-item load-job-btn small" href="#"
+                                            data-description="{{ job.description | e }}">{{ job.title }}</a></li>
+                                    {% endfor %}
+                                    {% else %}
+                                    <li><span class="dropdown-item text-muted small">No saved jobs</span></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        <input type="hidden" name="job_description" id="job_description_input"
+                            value="{{ job_description }}">
+                        <div class="border rounded-3 overflow-hidden position-relative" style="height: 300px;">
+                            <div id="editor" class="h-100 border-0">
+                                {% if job_description %}{{ job_description | safe }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-mic-fill me-2"></i>Generate Prep Sheet
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Output Column -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0 fw-bold text-uppercase small tracking-wide">Prep Material</h6>
+            </div>
+            <div class="card-body bg-light p-4 overflow-auto" style="max-height: 800px;">
+                {% if prep_material %}
+                <div class="vstack gap-4">
+                    <!-- Technical Questions -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h6 class="fw-bold mb-0 text-primary">Technical & Role Specific</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion accordion-flush" id="accordionTechnical">
+                                {% for item in prep_material.technical_questions %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed fw-medium" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#tech-{{ loop.index }}">
+                                            {{ item.question }}
+                                        </button>
+                                    </h2>
+                                    <div id="tech-{{ loop.index }}" class="accordion-collapse collapse"
+                                        data-bs-parent="#accordionTechnical">
+                                        <div class="accordion-body text-secondary small">
+                                            <strong>Key Talking Points:</strong> {{ item.ideal_answer_points }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Behavioral Questions -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h6 class="fw-bold mb-0 text-info">Behavioral (STAR Method)</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion accordion-flush" id="accordionBehavioral">
+                                {% for item in prep_material.behavioral_questions %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed fw-medium" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#beh-{{ loop.index }}">
+                                            {{ item.question }}
+                                        </button>
+                                    </h2>
+                                    <div id="beh-{{ loop.index }}" class="accordion-collapse collapse"
+                                        data-bs-parent="#accordionBehavioral">
+                                        <div class="accordion-body text-secondary small">
+                                            <strong>Situation/Task/Action/Result Guide:</strong> {{
+                                            item.star_answer_guide }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Questions to Ask -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h6 class="fw-bold mb-0 text-success">Questions to Ask Interviewer</h6>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% for q in prep_material.questions_to_ask_interviewer %}
+                            <li class="list-group-item text-secondary py-3">
+                                <i class="bi bi-chat-quote-fill me-2 text-success opacity-50"></i> {{ q }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% else %}
+                <div
+                    class="d-flex flex-column align-items-center justify-content-center h-100 text-center text-muted p-5">
+                    <div class="bg-white p-4 rounded-circle shadow-sm mb-3">
+                        <i class="bi bi-chat-dots display-4 text-secondary opacity-50"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark">Get Interview Ready</h6>
+                    <p class="small mb-0" style="max-width: 300px;">Generate custom interview questions and answer
+                        guides based on the job description.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var toolbarOptions = [
+            [{ header: [1, 2, false] }],
+            ["bold", "italic", "underline"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["clean"],
+        ];
+
+        var editor = new Quill("#editor", {
+            theme: "snow",
+            modules: { toolbar: toolbarOptions },
+            placeholder: "Paste job description here...",
+        });
+
+        var form = document.querySelector("#ip-form");
+        var hiddenInput = document.getElementById("job_description_input");
+
+        form.addEventListener("submit", function () {
+            hiddenInput.value = editor.root.innerHTML;
+        });
+
+        // Job Loading Logic
+        document.querySelectorAll('.load-job-btn').forEach(item => {
+            item.addEventListener('click', event => {
+                event.preventDefault();
+                const description = new DOMParser().parseFromString(item.getAttribute('data-description'), "text/html").documentElement.textContent;
+                editor.root.innerHTML = description;
+            })
+        });
+    });
+</script>
+<style>
+    .ql-container {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+    }
+
+    .ql-toolbar {
+        border-top: 0 !important;
+        border-left: 0 !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        background: #f8fafc;
+    }
+
+    .ql-container.ql-snow {
+        border: none !important;
+    }
+</style>
+{% endblock %}

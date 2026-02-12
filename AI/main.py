@@ -55,7 +55,12 @@ class ResumeAnalyzer:
         - "matching_keywords": A list of strings (skills/keywords present in both).
         - "missing_keywords": A list of strings (skills/keywords in JD but missing in Resume).
         - "recommendations": A list of strings (3-5 actionable tips to improve the resume for this job).
-        - "Updated resume" : A newly revised resume based on the job description. Use MARKDOWN format for this field (headers, bullet points, bold text) to make it look professional.
+        - "Updated resume" : A newly revised resume based on the job description. Use strict MARKDOWN format.
+          CRITICAL: The resume MUST be designed to fit on a SINGLE PAGE.
+          - Structure: Header (Name/Contact), Professional Summary (3 lines max), Experience (reverse chronological, focus on achievements), Skills, Education.
+          - Use concise, impact-driven bullet points.
+          - No conversational filler or explanations.
+          - Use professional formatting (## for sections, ### for roles, * for bullets).
         Ensure the response is purely valid JSON, no markdown formatting outside the JSON structure.
         """
 
@@ -87,6 +92,90 @@ class ResumeAnalyzer:
                 "missing_keywords": [],
                 "recommendations": []
             }
+
+    def generate_cover_letter(self, resume_path, job_description):
+        """Generate a customized cover letter."""
+        resume_text = self.extract_text_from_pdf(resume_path)
+        if not resume_text:
+            return None
+            
+        prompt = f"""
+        You are an expert career coach and professional writer.
+        Write a compelling, professional cover letter for the candidate based on their resume and the job description.
+        
+        JOB DESCRIPTION:
+        {job_description}
+        
+        RESUME:
+        {resume_text}
+        
+        The cover letter should:
+        1. Address the hiring manager professionally.
+        2. Highlight key skills from the resume that match the job.
+        3. Express enthusiasm for the role and company.
+        4. Be formatted in Markdown.
+        5. Keep it concise (under 400 words).
+        """
+        
+        try:
+            response = ollama.chat(
+                model=self.model_name,
+                messages=[{'role': 'user', 'content': prompt}],
+                options={'temperature': 0.7}
+            )
+            return response['message']['content']
+        except Exception as e:
+            logger.error(f"Error generating cover letter: {e}")
+            return None
+
+    def generate_interview_prep(self, resume_path, job_description):
+        """Generate interview preparation questions and answers."""
+        resume_text = self.extract_text_from_pdf(resume_path)
+        if not resume_text:
+            return None
+            
+        prompt = f"""
+        You are an expert technical recruiter and interview coach.
+        Generate a set of interview preparation materials based on the candidate's resume and the job description.
+        
+        JOB DESCRIPTION:
+        {job_description}
+        
+        RESUME:
+        {resume_text}
+        
+        Output a valid JSON object with the following structure:
+        {{
+            "technical_questions": [
+                {{"question": "...", "ideal_answer_points": "..."}}
+            ],
+            "behavioral_questions": [
+                {{"question": "...", "star_answer_guide": "..."}}
+            ],
+            "questions_to_ask_interviewer": [
+                "..."
+            ]
+        }}
+        """
+        
+        try:
+            response = ollama.chat(
+                model=self.model_name,
+                messages=[{'role': 'user', 'content': prompt}],
+                format='json',
+                options={'temperature': 0.7}
+            )
+            content = response['message']['content']
+            try:
+                return json.loads(content)
+            except:
+                if "```json" in content:
+                    return json.loads(content.split("```json")[1].split("```")[0])
+                return json.loads(content) 
+        except Exception as e:
+            logger.error(f"Error generating interview prep: {e}")
+            return None
+
 
 # Singleton instance or factory can be used if needed
 analyzer = ResumeAnalyzer()

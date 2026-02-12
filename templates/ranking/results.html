@@ -5,11 +5,11 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="h3 fw-bold text-dark mb-1">Ranking Results</h2>
-        <p class="text-secondary mb-0">Candidates ranked for <strong>{{ job.title }}</strong></p>
+        <h2 class="h3 fw-bold text-dark mb-1">Match Report</h2>
+        <p class="text-secondary mb-0">Comparison for target job: <strong>{{ job.title }}</strong></p>
     </div>
     <a href="{{ url_for('ranking_select') }}" class="btn btn-outline-primary shadow-sm">
-        New Ranking
+        New Check
     </a>
 </div>
 
@@ -20,8 +20,8 @@
                 <thead class="bg-light">
                     <tr>
                         <th class="ps-4 py-3 text-secondary text-uppercase small fw-bold">Rank</th>
-                        <th class="py-3 text-secondary text-uppercase small fw-bold">Score</th>
-                        <th class="py-3 text-secondary text-uppercase small fw-bold">Candidate</th>
+                        <th class="py-3 text-secondary text-uppercase small fw-bold">Match Score</th>
+                        <th class="py-3 text-secondary text-uppercase small fw-bold">Resume Version</th>
                         <th class="py-3 text-secondary text-uppercase small fw-bold" style="width: 40%;">Summary</th>
                         <th class="pe-4 py-3 text-end text-secondary text-uppercase small fw-bold">Actions</th>
                     </tr>
@@ -49,7 +49,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="avatar bg-white border rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold"
                                     style="width: 40px; height: 40px;">
-                                    {{ result.resume.filename[0:2].upper() }}
+                                    <i class="bi bi-file-earmark-text text-primary"></i>
                                 </div>
                                 <span class="fw-semibold text-dark">{{ result.resume.filename }}</span>
                             </div>

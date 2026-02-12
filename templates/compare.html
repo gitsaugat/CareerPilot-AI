@@ -6,77 +6,78 @@
 <!-- Toolbar / Header -->
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <a href="{{ url_for('dashboard') }}" class="text-decoration-none text-muted mb-2 d-inline-block">
-      &larr; Back to Dashboard
+    <a href="{{ url_for('dashboard') }}" class="text-decoration-none text-muted mb-2 d-inline-block fw-medium small">
+      <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
     </a>
-    <h2 class="h3 fw-bold text-dark mb-0">Analyze Candidate Match</h2>
+    <h2 class="h3 fw-bold text-dark mb-0">Match Analyzer</h2>
+    <p class="text-secondary mb-0">Optimize your resume for a specific job description.</p>
   </div>
 </div>
 
 <!-- Top Row: Inputs -->
-<div class="row g-4 mb-4">
+<div class="row g-4 mb-5">
   <!-- Left Column: Job Description Input -->
   <div class="col-lg-6">
     <div class="card border-0 shadow-sm h-100">
       <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0 fw-bold">Job Description</h5>
+        <h6 class="card-title mb-0 fw-bold text-uppercase small tracking-wide">1. Target Job</h6>
         <!-- Load Job Dropdown -->
         <div class="dropdown">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+          <button class="btn btn-sm btn-white border dropdown-toggle" type="button" data-bs-toggle="dropdown"
             aria-expanded="false">
-            Load Saved Job
+            <i class="bi bi-download me-1"></i> Load Saved
           </button>
-          <ul class="dropdown-menu dropdown-menu-end" style="max-height: 300px; overflow-y: auto;">
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="max-height: 300px; overflow-y: auto;">
             {% if jobs %}
             {% for job in jobs %}
-            <li><a class="dropdown-item load-job-btn" href="#" data-description="{{ job.description | e }}">{{ job.title
+            <li><a class="dropdown-item load-job-btn small" href="#" data-description="{{ job.description | e }}">{{
+                job.title
                 }}</a></li>
             {% endfor %}
             {% else %}
-            <li><span class="dropdown-item text-muted">No saved jobs</span></li>
+            <li><span class="dropdown-item text-muted small">No saved jobs</span></li>
             {% endif %}
             <li>
               <hr class="dropdown-divider">
             </li>
-            <li><a class="dropdown-item text-primary" href="{{ url_for('jobs_create') }}">Create New Job</a></li>
+            <li><a class="dropdown-item text-primary small fw-bold" href="{{ url_for('jobs_create') }}">+ Create New
+                Job</a></li>
           </ul>
         </div>
       </div>
-      <div class="card-body d-flex flex-column" style="height: 600px;">
-        <p class="text-muted small mb-3">
-          Select a saved job or paste the description below.
-        </p>
+      <div class="card-body d-flex flex-column" style="height: 500px;">
         <form method="post" id="compare-form" class="d-flex flex-column flex-grow-1" style="min-height: 0;">
           <input type="hidden" name="job_description" id="job_description_input" />
 
-          <div class="flex-grow-1 mb-3 border rounded"
-            style="background: #fff; display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
-            <div id="editor" style="flex: 1; border: none;">
-              {% if job_description_html %} {{ job_description_html|safe }} {%
-              endif %}
+          <div class="flex-grow-1 mb-3 border rounded-3 overflow-hidden position-relative">
+            <div id="editor" class="h-100 border-0">
+              {% if job_description_html %} {{ job_description_html|safe }} {% endif %}
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary w-100 py-2 fw-medium">
-            Analyze Match
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+            <i class="bi bi-magic me-2"></i>Analyze Match
           </button>
         </form>
       </div>
     </div>
   </div>
   <style>
-    /* Custom CSS to make Quill editor scrollable within the flex container */
     .ql-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden !important;
-      height: 100%;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
     }
 
-    .ql-editor {
-      flex: 1;
-      overflow-y: auto !important;
+    .ql-toolbar {
+      border-top: 0 !important;
+      border-left: 0 !important;
+      border-right: 0 !important;
+      border-bottom: 1px solid #e2e8f0 !important;
+      background: #f8fafc;
+    }
+
+    .ql-container.ql-snow {
+      border: none !important;
     }
   </style>
 
@@ -84,19 +85,26 @@
   <div class="col-lg-6">
     <div class="card border-0 shadow-sm h-100">
       <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0 fw-bold">Candidate Resume</h5>
-        <a href="{{ url_for('download_resume', resume_id=resume.id) }}" class="btn btn-sm btn-outline-secondary">
-          Download PDF
-        </a>
+        <h6 class="card-title mb-0 fw-bold text-uppercase small tracking-wide">2. Your Resume</h6>
+        <div class="d-flex gap-2">
+          <span class="badge bg-light text-dark border">{{ resume.name }}</span>
+          <a href="{{ url_for('download_resume', resume_id=resume.id) }}" class="btn btn-sm btn-light border"
+            title="Download Original">
+            <i class="bi bi-download"></i>
+          </a>
+        </div>
       </div>
-      <div class="card-body p-0 bg-light" style="height: 600px;">
+      <div class="card-body p-0 bg-light position-relative overflow-hidden" style="height: 500px;">
         {% if can_preview_pdf and viewer_url %}
         <iframe src="{{ viewer_url }}" style="width: 100%; height: 100%; border: none;"></iframe>
         {% else %}
-        <div class="d-flex flex-column align-items-center justify-content-center h-100 p-5 text-center text-muted">
-          <p class="mb-3">Preview not available for this file type.</p>
-          <a href="{{ url_for('download_resume', resume_id=resume.id) }}" class="btn btn-primary">
-            Download File
+        <div class="d-flex flex-column align-items-center justify-content-center h-100 p-5 text-center">
+          <div class="bg-white p-4 rounded-circle shadow-sm mb-3">
+            <i class="bi bi-file-earmark-text display-4 text-secondary"></i>
+          </div>
+          <p class="text-muted fw-medium">Preview not available.</p>
+          <a href="{{ url_for('download_resume', resume_id=resume.id) }}" class="btn btn-outline-primary btn-sm">
+            Download File to View
           </a>
         </div>
         {% endif %}
@@ -107,102 +115,134 @@
 
 <!-- Bottom Row: Analysis Results (Conditional) -->
 {% if analysis_results %}
-<div class="row">
+<div class="row" id="results">
   <div class="col-12">
-    <div class="card border-0 shadow-sm">
-      <div class="card-header bg-white border-bottom py-0">
-        <ul class="nav nav-underline card-header-tabs" id="analysisTabs" role="tablist" style="margin-bottom: -1px;">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active text-dark fw-semibold py-3 px-4" id="analysis-tab" data-bs-toggle="tab"
-              data-bs-target="#analysis-pane" type="button" role="tab" aria-controls="analysis-pane"
-              aria-selected="true" style="border-radius: 0;">Analysis</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link text-secondary fw-semibold py-3 px-4" id="resume-tab" data-bs-toggle="tab"
-              data-bs-target="#resume-pane" type="button" role="tab" aria-controls="resume-pane" aria-selected="false"
-              style="border-radius: 0;">Revised Resume</button>
-          </li>
-        </ul>
+    <div class="card border-0 shadow-lg overflow-hidden">
+      <div class="card-header bg-white border-bottom px-4 py-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0 text-primary">Analysis Results</h5>
+          <ul class="nav nav-pills card-header-pills" id="analysisTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active rounded-pill px-4" id="analysis-tab" data-bs-toggle="tab"
+                data-bs-target="#analysis-pane" type="button" role="tab">Overview & Actions</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link rounded-pill px-4" id="resume-tab" data-bs-toggle="tab"
+                data-bs-target="#resume-pane" type="button" role="tab">AI Optimized Resume</button>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div class="card-body p-4">
+
+      <div class="card-body p-0">
         <div class="tab-content" id="analysisTabsContent">
           <!-- Analysis Tab -->
-          <div class="tab-pane fade show active" id="analysis-pane" role="tabpanel" aria-labelledby="analysis-tab">
-            <div class="row align-items-center">
-              <!-- Score Section -->
-              <div class="col-md-3 text-center border-end">
-                <h6 class="text-secondary text-uppercase small fw-bold mb-3 tracking-wide">
-                  Match Score
-                </h6>
-                <div class="position-relative d-inline-flex align-items-center justify-content-center">
-                  <svg viewBox="0 0 36 36" class="circular-chart" style="width: 140px; height: 140px;">
-                    <path class="circle-bg"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      style="fill: none; stroke: #f1f3f4; stroke-width: 2.5;" />
-                    <path class="circle" stroke-dasharray="{{ analysis_results.score }}, 100"
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      style="fill: none; stroke: {% if analysis_results.score >= 80 %}#198754{% elif analysis_results.score >= 50 %}#ffc107{% else %}#dc3545{% endif %}; stroke-width: 2.5; stroke-linecap: round; animation: progress 1s ease-out forwards;" />
-                  </svg>
-                  <div class="position-absolute d-flex flex-column align-items-center">
-                    <span class="fw-bold display-6 text-dark mb-0">{{ analysis_results.score }}%</span>
-                    <span class="small text-muted">Match</span>
-                  </div>
-                </div>
-              </div>
+          <div class="tab-pane fade show active" id="analysis-pane" role="tabpanel">
+            <div class="p-4 p-md-5">
+              <div class="row align-items-start g-5">
+                <!-- Score Section -->
+                <div class="col-md-3 text-center">
+                  <div class="card bg-light border-0 rounded-4 p-4">
+                    <h6 class="text-secondary text-uppercase small fw-bold mb-3 tracking-wide">ATS Match Score</h6>
 
-              <!-- Details Section -->
-              <div class="col-md-9 ps-md-4">
-                <div class="mb-4">
-                  <h6 class="text-muted text-uppercase small fw-bold mb-2">
-                    Summary
-                  </h6>
-                  <p class="text-secondary lead fs-6">
-                    {{ analysis_results.summary }}
-                  </p>
-                </div>
-
-                <div class="row g-4">
-                  <!-- Keywords Column -->
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <h6 class="text-muted text-uppercase small fw-bold mb-2">
-                        Matching Keywords
-                      </h6>
-                      <div class="d-flex flex-wrap gap-1">
-                        {% for keyword in analysis_results.matching_keywords %}
-                        <span
-                          class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">{{
-                          keyword }}</span>
-                        {% endfor %}
+                    <div class="position-relative d-inline-flex align-items-center justify-content-center mb-3">
+                      {% set stroke = '#ef4444' %}
+                      {% if analysis_results.score >= 80 %}
+                      {% set stroke = '#22c55e' %}
+                      {% elif analysis_results.score >= 50 %}
+                      {% set stroke = '#eab308' %}
+                      {% endif %}
+                      <svg viewBox="0 0 36 36" class="circular-chart" style="width: 160px; height: 160px;">
+                        <path class="circle-bg"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          style="fill: none; stroke: #e2e8f0; stroke-width: 2.5;" />
+                        <path class="circle" stroke-dasharray="{{ analysis_results.score }}, 100"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          style="fill: none; stroke: {{ stroke }}; stroke-width: 2.5; stroke-linecap: round; animation: progress 1s ease-out forwards;" />
+                      </svg>
+                      <div class="position-absolute d-flex flex-column align-items-center">
+                        <span class="fw-bold display-4 text-dark mb-0">{{ analysis_results.score }}</span>
+                        <span class="small text-uppercase fw-bold text-muted" style="font-size: 0.65rem;">out of
+                          100</span>
                       </div>
                     </div>
-                    <div>
-                      <h6 class="text-muted text-uppercase small fw-bold mb-2">
-                        Missing Keywords
-                      </h6>
-                      <div class="d-flex flex-wrap gap-1">
-                        {% for keyword in analysis_results.missing_keywords %}
-                        <span
-                          class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">{{
-                          keyword }}</span>
-                        {% endfor %}
-                      </div>
+
+                    <div class="d-grid">
+                      <button class="btn btn-primary btn-sm rounded-pill fw-bold"
+                        onclick="document.getElementById('resume-tab').click()">
+                        View Fixes &rarr;
+                      </button>
                     </div>
                   </div>
+                </div>
 
-                  <!-- Recommendations Column -->
-                  <div class="col-md-6">
-                    <h6 class="text-muted text-uppercase small fw-bold mb-2">
-                      Recommendations
-                    </h6>
-                    <ul class="list-group list-group-flush small">
-                      {% for rec in analysis_results.recommendations %}
-                      <li class="list-group-item px-0 py-1 border-0 d-flex gap-2">
-                        <span class="text-warning">&bull;</span>
-                        <span>{{ rec }}</span>
-                      </li>
-                      {% endfor %}
-                    </ul>
+                <!-- Details Section -->
+                <div class="col-md-9">
+                  <div class="mb-5">
+                    <h5 class="fw-bold text-dark mb-2">Executive Summary</h5>
+                    <p class="text-secondary fs-5" style="line-height: 1.6;">
+                      {{ analysis_results.summary }}
+                    </p>
+                  </div>
+
+                  <div class="row g-4">
+                    <!-- Keywords -->
+                    <div class="col-md-6">
+                      <div class="card border border-success border-opacity-25 bg-success bg-opacity-10 h-100">
+                        <div class="card-body">
+                          <div class="d-flex align-items-center mb-3 text-success">
+                            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Matching Keywords</h6>
+                          </div>
+                          <div class="d-flex flex-wrap gap-2">
+                            {% for keyword in analysis_results.matching_keywords %}
+                            <span
+                              class="badge bg-white text-success border border-success border-opacity-25 fw-medium py-2 px-3">
+                              {{ keyword }}
+                            </span>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="card border border-danger border-opacity-25 bg-danger bg-opacity-10 h-100">
+                        <div class="card-body">
+                          <div class="d-flex align-items-center mb-3 text-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Critical Missing Keywords</h6>
+                          </div>
+                          <div class="d-flex flex-wrap gap-2">
+                            {% for keyword in analysis_results.missing_keywords %}
+                            <span
+                              class="badge bg-white text-danger border border-danger border-opacity-25 fw-medium py-2 px-3">
+                              {{ keyword }}
+                            </span>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div class="col-12">
+                      <div class="card border bg-white mt-2">
+                        <div class="card-header bg-white py-3">
+                          <h6 class="fw-bold mb-0 text-dark">Action Plan & Recommendations</h6>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                          {% for rec in analysis_results.recommendations %}
+                          <li class="list-group-item px-4 py-3 d-flex gap-3 align-items-start">
+                            <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-1 mt-1 flex-shrink-0">
+                              <i class="bi bi-lightbulb-fill"></i>
+                            </div>
+                            <span class="text-secondary">{{ rec }}</span>
+                          </li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -210,13 +250,15 @@
           </div>
 
           <!-- Revised Resume Tab -->
-          <div class="tab-pane fade" id="resume-pane" role="tabpanel" aria-labelledby="resume-tab">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="text-secondary text-uppercase small fw-bold mb-0 tracking-wide">AI Generated Resume Draft
-              </h6>
-              <button class="btn btn-sm btn-outline-primary"
-                onclick="navigator.clipboard.writeText(document.getElementById('revised-content-hidden').innerText); alert('Copied to clipboard!');">
-                Copy to Clipboard
+          <div class="tab-pane fade" id="resume-pane" role="tabpanel">
+            <div class="bg-light border-bottom px-4 py-3 d-flex justify-content-between align-items-center sticky-top">
+              <div>
+                <h6 class="fw-bold text-dark mb-0">AI Optimization Preview</h6>
+                <small class="text-muted">Generated based on analysis results</small>
+              </div>
+              <button class="btn btn-primary btn-sm shadow-sm"
+                onclick="navigator.clipboard.writeText(document.getElementById('revised-content-hidden').innerText); alert('Copied markdown to clipboard!');">
+                <i class="bi bi-clipboard me-1"></i> Copy Markdown
               </button>
             </div>
 
@@ -224,13 +266,15 @@
             <div id="revised-content-hidden" style="display: none;">{{ analysis_results['Updated resume'] if 'Updated
               resume' in analysis_results else '' }}</div>
 
-            <div class="bg-light p-3 rounded border">
-              <div class="bg-white shadow-sm p-5 mx-auto"
-                style="max-width: 800px; min-height: 800px; font-family: 'Times New Roman', serif; color: #000; line-height: 1.6;">
+            <div class="bg-light p-4 p-md-5">
+              <div class="bg-white shadow-sm p-5 mx-auto rounded-3"
+                style="max-width: 850px; min-height: 1000px; font-family: 'Times New Roman', serif; color: #1e293b; line-height: 1.6;">
                 {% if 'Updated resume' in analysis_results %}
                 {{ analysis_results['Updated resume'] | markdown | safe }}
                 {% else %}
-                <p class="text-muted text-center">No revised resume available.</p>
+                <div class="text-center py-5">
+                  <p class="text-muted mb-0">No revised resume available.</p>
+                </div>
                 {% endif %}
               </div>
             </div>
@@ -239,7 +283,8 @@
       </div>
     </div>
   </div>
-  {% endif %}
+</div>
+{% endif %}
 </div>
 
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
