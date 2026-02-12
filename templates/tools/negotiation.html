@@ -1,0 +1,120 @@
+{% extends "layouts/base_app.html" %}
+
+{% block title %}Negotiation Coach{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h3 fw-bold text-dark mb-0">Salary Negotiation Coach</h2>
+        <p class="text-secondary mb-0">Maximize your offer with AI-driven scripts and strategy.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Input Column -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="card-title mb-0 fw-bold text-uppercase small tracking-wide">Offer Details</h6>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Job Title</label>
+                        <input type="text" class="form-control" name="job_title"
+                            placeholder="e.g. Senior Software Engineer" value="{{ job_title }}" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Current Offer
+                            (Optional)</label>
+                        <textarea class="form-control" name="offer_details" rows="6"
+                            placeholder="e.g. Offered $120k base, 10k sign-on. I was hoping for $135k base. Mention specific benefits or concerns.">{{ offer_details }}</textarea>
+                        <div class="form-text">Include base salary, equity, bonus, and what you are asking for.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-cash-coin me-2"></i>Generate Scripts
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Output Column -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="card-title mb-0 fw-bold text-uppercase small tracking-wide">Negotiation Strategy</h6>
+            </div>
+            <div class="card-body bg-light p-4 overflow-auto" style="max-height: 800px;">
+                {% if generated_content %}
+                <div class="vstack gap-4">
+                    <!-- Strategy Tips -->
+                    <div class="alert alert-info border-0 d-flex gap-3 align-items-center shadow-sm">
+                        <i class="bi bi-lightbulb-fill fs-4"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1">Key Strategy</h6>
+                            <ul class="mb-0 small ps-3">
+                                {% for tip in generated_content.strategy_tips %}
+                                <li>{{ tip }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Email Script -->
+                    <div class="card border-0 shadow-sm">
+                        <div
+                            class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold mb-0 text-primary">Counter-Offer Email</h6>
+                            <button class="btn btn-sm btn-outline-primary"
+                                onclick="navigator.clipboard.writeText(document.getElementById('email-script').innerText)">Copy</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="p-3 bg-light rounded border" id="email-script" style="white-space: pre-wrap;">{{
+                                generated_content.email_script }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Phone Script -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h6 class="fw-bold mb-0 text-success">Phone Script / Talking Points</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="p-3 bg-light rounded border" style="white-space: pre-wrap;">{{
+                                generated_content.phone_script }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Questions -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3 border-bottom">
+                            <h6 class="fw-bold mb-0 text-dark">Discovery Questions</h6>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% for q in generated_content.questions_to_ask %}
+                            <li class="list-group-item text-secondary py-3">
+                                <i class="bi bi-question-circle-fill me-2 opacity-50"></i> {{ q }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% else %}
+                <div
+                    class="d-flex flex-column align-items-center justify-content-center h-100 text-center text-muted p-5">
+                    <div class="bg-white p-4 rounded-circle shadow-sm mb-3">
+                        <i class="bi bi-graph-up-arrow display-4 text-secondary opacity-50"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark">Don't Leave Money on the Table</h6>
+                    <p class="small mb-0" style="max-width: 300px;">Enter your offer details to get a professional
+                        counter-offer script.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

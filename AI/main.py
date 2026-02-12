@@ -40,8 +40,8 @@ class ResumeAnalyzer:
 
         # prompt for the LLM
         prompt = f"""
-        You are an expert ATS (Applicant Tracking System) and Resume Coach.
-        Compare the following Resume against the Job Description.
+        You are a tough, no-nonsense Senior Executive Recruiter.
+        Your job is to brutally critique this resume and rewrite it to get the candidate hired for the specific job description.
 
         JOB DESCRIPTION:
         {job_description}
@@ -49,18 +49,21 @@ class ResumeAnalyzer:
         RESUME:
         {resume_text}
 
-        Analyze the match and return a valid JSON object with the following fields:
-        - "score": A number between 0 and 100 representing the match percentage.
-        - "summary": A brief (1-2 sentences) summary of the fit.
-        - "matching_keywords": A list of strings (skills/keywords present in both).
-        - "missing_keywords": A list of strings (skills/keywords in JD but missing in Resume).
-        - "recommendations": A list of strings (3-5 actionable tips to improve the resume for this job).
-        - "Updated resume" : A newly revised resume based on the job description. Use strict MARKDOWN format.
-          CRITICAL: The resume MUST be designed to fit on a SINGLE PAGE.
-          - Structure: Header (Name/Contact), Professional Summary (3 lines max), Experience (reverse chronological, focus on achievements), Skills, Education.
-          - Use concise, impact-driven bullet points.
-          - No conversational filler or explanations.
-          - Use professional formatting (## for sections, ### for roles, * for bullets).
+        Analyze the fit and return a valid JSON object with the following fields:
+        - "score": A number between 0 and 100. Be strict. High scores (90+) are reserved for perfect matches.
+        - "summary": A direct, honest assessment of why they are or are not a fit.
+        - "matching_keywords": List of hard skills found in both.
+        - "missing_keywords": List of critical hard skills from the JD missing in the resume. EXPERT TIP: Do not hallucinate.
+        - "recommendations": A list of 3-5 specific, harsh, and actionable changes. 
+           Example: "Change 'Responsible for sales' to 'Generated $50k in pipeline monthly'."
+        - "Updated resume" : A completely rewritten, top-tier professional resume in strict MARKDOWN.
+          RULES:
+          1. SINGLE PAGE ONLY. Cut fluff ruthlessly.
+          2. Professional Summary: 2-3 powerful sentences pitching the candidate for THIS specific role.
+          3. Experience: Rewrite bullet points to be "Result + Action + Context". Use numbers/metrics where possible (even if estimated placeholders like '[X]%').
+          4. Skills: Group by category (e.g., Languages, Frameworks).
+          5. Formatting: standard Markdown (## Headers, * Bullets). No images or columns.
+
         Ensure the response is purely valid JSON, no markdown formatting outside the JSON structure.
         """
 
@@ -100,8 +103,8 @@ class ResumeAnalyzer:
             return None
             
         prompt = f"""
-        You are an expert career coach and professional writer.
-        Write a compelling, professional cover letter for the candidate based on their resume and the job description.
+        You are a professional Ghostwriter for top executives.
+        Write a disruptive, attention-grabbing cover letter that breaks the mold of "I am writing to apply...".
         
         JOB DESCRIPTION:
         {job_description}
@@ -109,12 +112,17 @@ class ResumeAnalyzer:
         RESUME:
         {resume_text}
         
-        The cover letter should:
-        1. Address the hiring manager professionally.
-        2. Highlight key skills from the resume that match the job.
-        3. Express enthusiasm for the role and company.
-        4. Be formatted in Markdown.
-        5. Keep it concise (under 400 words).
+        GUIDELINES:
+        1. Hook the reader immediately in the first sentence with a relevant achievement or passion.
+        2. Focus on "What I can do for you", not "What I have done".
+        3. Use a confident, professional, but human tone.
+        4. Keep it under 250 words. Short and punchy.
+        5. Format in Markdown.
+        
+        Structure:
+        - Hook (The "Why me")
+        - The Proof (1-2 key achievements mapping to JD pains)
+        - The Close (Call to action)
         """
         
         try:
@@ -174,6 +182,138 @@ class ResumeAnalyzer:
                 return json.loads(content) 
         except Exception as e:
             logger.error(f"Error generating interview prep: {e}")
+            return None
+
+    def generate_networking_messages(self, resume_path, job_description):
+        """Generate networking messages (Cold Email & LinkedIn)."""
+        resume_text = self.extract_text_from_pdf(resume_path)
+        if not resume_text:
+            return None
+            
+        prompt = f"""
+        You are an expert career coach and networking strategist.
+        Generate networking messages for a candidate based on their resume and a target job description.
+        
+        JOB DESCRIPTION:
+        {job_description}
+        
+        RESUME:
+        {resume_text}
+        
+        Output a valid JSON object with the following structure:
+        {{
+            "cold_email_hiring_manager": {{
+                "subject": "...",
+                "body": "..." 
+            }},
+            "linkedin_connection_request": "Max 300 characters. Professional and personalized.",
+            "informational_interview_request": "Email body asking for 15 mins of advice from a peer."
+        }}
+        """
+        
+        try:
+            response = ollama.chat(
+                model=self.model_name,
+                messages=[{'role': 'user', 'content': prompt}],
+                format='json',
+                options={'temperature': 0.7}
+            )
+            content = response['message']['content']
+            try:
+                return json.loads(content)
+            except:
+                if "```json" in content:
+                    return json.loads(content.split("```json")[1].split("```")[0])
+                return json.loads(content)
+        except Exception as e:
+            logger.error(f"Error generating networking messages: {e}")
+            return None
+
+    def optimize_linkedin(self, resume_path, job_description):
+        """Generate LinkedIn profile optimization suggestions."""
+        resume_text = self.extract_text_from_pdf(resume_path)
+        if not resume_text:
+            return None
+            
+        prompt = f"""
+        You are a LinkedIn Profile Expert.
+        Optimize the candidate's LinkedIn profile to attract recruiters for the specific target job.
+        
+        JOB DESCRIPTION:
+        {job_description}
+        
+        RESUME:
+        {resume_text}
+        
+        Output a valid JSON object with the following structure:
+        {{
+            "headline": "SEO-optimized headline (max 220 chars)",
+            "about_section": "Engaging, first-person summary optimized for the target role.",
+            "key_skills_to_pin": ["Skill 1", "Skill 2", "Skill 3"],
+            "experience_enhancements": [
+                "Specific bullet point to add to latest role...",
+                "Keyword to emphasize..."
+            ]
+        }}
+        """
+        
+        try:
+            response = ollama.chat(
+                model=self.model_name,
+                messages=[{'role': 'user', 'content': prompt}],
+                format='json',
+                options={'temperature': 0.7}
+            )
+            content = response['message']['content']
+            try:
+                return json.loads(content)
+            except:
+                if "```json" in content:
+                    return json.loads(content.split("```json")[1].split("```")[0])
+                return json.loads(content)
+        except Exception as e:
+            logger.error(f"Error optimizing LinkedIn profile: {e}")
+            return None
+
+    def generate_negotiation_scripts(self, job_title, offer_details=None):
+        """Generate salary negotiation scripts."""
+        
+        context = f"Job Title: {job_title}"
+        if offer_details:
+            context += f"\nOffer Details: {offer_details}"
+            
+        prompt = f"""
+        You are a Salary Negotiation Coach.
+        Generate scripts and strategies for a candidate negotiating a job offer.
+        
+        CONTEXT:
+        {context}
+        
+        Output a valid JSON object with the following structure:
+        {{
+            "email_script": "Professional email counter-offer script.",
+            "phone_script": "Bullet points for a phone conversation.",
+            "questions_to_ask": ["Question to uncover budget...", "Question about benefits..."],
+            "strategy_tips": ["Tip 1", "Tip 2"]
+        }}
+        """
+        
+        try:
+            response = ollama.chat(
+                model=self.model_name,
+                messages=[{'role': 'user', 'content': prompt}],
+                format='json',
+                options={'temperature': 0.7}
+            )
+            content = response['message']['content']
+            try:
+                return json.loads(content)
+            except:
+                if "```json" in content:
+                    return json.loads(content.split("```json")[1].split("```")[0])
+                return json.loads(content)
+        except Exception as e:
+            logger.error(f"Error generating negotiation scripts: {e}")
             return None
 
 

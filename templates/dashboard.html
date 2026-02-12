@@ -31,7 +31,7 @@
 
   <!-- Stats Grid -->
   <div class="row g-4 mb-5">
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="card border-0 shadow-sm h-100 py-3"
         style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
         <div class="card-body">
@@ -42,12 +42,12 @@
             </div>
             <span class="badge bg-white bg-opacity-25 text-white border-0">Total</span>
           </div>
-          <h2 class="display-5 fw-bold mb-0">12</h2>
+          <h2 class="display-5 fw-bold mb-0">{{ total_applications }}</h2>
           <p class="mb-0 text-white-50 small">Active Applications</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="card border-0 shadow-sm h-100 py-3">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between mb-3">
@@ -57,12 +57,12 @@
             </div>
             <span class="badge bg-warning bg-opacity-10 text-warning border-0">Action</span>
           </div>
-          <h2 class="display-5 fw-bold mb-0 text-dark">3</h2>
+          <h2 class="display-5 fw-bold mb-0 text-dark">{{ interviews_count }}</h2>
           <p class="mb-0 text-secondary small">Interviews Scheduled</p>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="card border-0 shadow-sm h-100 py-3">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between mb-3">
@@ -77,23 +77,6 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm h-100 py-3">
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <div class="bg-info bg-opacity-10 rounded-circle p-2 d-flex align-items-center justify-content-center"
-              style="width: 40px; height: 40px;">
-              <i class="bi bi-lightning-charge-fill fs-5 text-info"></i>
-            </div>
-            <span class="badge bg-info bg-opacity-10 text-info border-0">Tools</span>
-          </div>
-          <div class="d-flex gap-2 mt-3">
-            <button class="btn btn-sm btn-outline-secondary flex-grow-1">Cover Letter</button>
-            <button class="btn btn-sm btn-outline-secondary flex-grow-1">Prep</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div class="row g-4">
@@ -102,16 +85,9 @@
       <div class="card border-0 shadow-sm h-100">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center sticky-top">
           <h5 class="fw-bold mb-0">Recent Activity</h5>
-          <div class="dropdown">
-            <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">
-              Filter Status
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
-              <li><a class="dropdown-item" href="#">All</a></li>
-              <li><a class="dropdown-item" href="#">Applied</a></li>
-              <li><a class="dropdown-item" href="#">Interviewing</a></li>
-            </ul>
-          </div>
+          <a href="{{ url_for('jobs_create') }}" class="btn btn-sm btn-primary rounded-pill">
+            <i class="bi bi-plus-lg me-1"></i> Add
+          </a>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -120,64 +96,54 @@
                 <tr>
                   <th class="ps-4 text-secondary small text-uppercase fw-bold">Role & Company</th>
                   <th class="text-secondary small text-uppercase fw-bold">Date</th>
-                  <th class="text-secondary small text-uppercase fw-bold">Status</th>
-                  <th class="text-end pe-4 text-secondary small text-uppercase fw-bold">Match</th>
+                  <th class="text-end pe-4 text-secondary small text-uppercase fw-bold">Status</th>
                 </tr>
               </thead>
               <tbody>
-                <!-- Mock Data for now, needs real integration later -->
+                {% for job in recent_jobs %}
                 <tr>
                   <td class="ps-4">
                     <div class="d-flex align-items-center gap-3">
                       <div
-                        class="avatar bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center fw-bold"
+                        class="avatar bg-light text-secondary rounded-3 d-flex align-items-center justify-content-center fw-bold border"
                         style="width: 48px; height: 48px;">
-                        G
+                        <i class="bi bi-building"></i>
                       </div>
                       <div>
-                        <h6 class="mb-0 text-dark fw-bold">Senior Backend Engineer</h6>
-                        <small class="text-muted">Google &bull; Mountain View, CA</small>
+                        <h6 class="mb-0 text-dark fw-bold">{{ job.title }}</h6>
+                        <small class="text-muted">{{ job.company or 'Unknown Company' }}</small>
                       </div>
                     </div>
                   </td>
-                  <td class="text-muted">Oct 24, 2024</td>
-                  <td><span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3">Applied</span></td>
+                  <td class="text-muted">{{ job.created_at.strftime('%b %d') }}</td>
                   <td class="text-end pe-4">
-                    <div class="d-flex align-items-center justify-content-end gap-2">
-                      <span class="fw-bold text-success">92%</span>
-                      <div class="progress" style="width: 60px; height: 6px;">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: 92%" aria-valuenow="92"
-                          aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                    </div>
+                    {% set badge_class = 'bg-secondary' %}
+                    {% if job.status == 'Applied' %}
+                    {% set badge_class = 'bg-primary' %}
+                    {% elif job.status == 'Interviewing' %}
+                    {% set badge_class = 'bg-warning text-dark' %}
+                    {% elif job.status == 'Offer' %}
+                    {% set badge_class = 'bg-success' %}
+                    {% elif job.status == 'Rejected' %}
+                    {% set badge_class = 'bg-danger' %}
+                    {% endif %}
+                    <span
+                      class="badge {{ badge_class }} bg-opacity-10 text-{{ badge_class | replace('bg-', '') if 'text-dark' not in badge_class else 'dark' }} border border-{{ badge_class | replace('bg-', '') if 'text-dark' not in badge_class else 'warning' }} border-opacity-25 px-2 py-1">
+                      {{ job.status }}
+                    </span>
                   </td>
                 </tr>
+                {% else %}
                 <tr>
-                  <td class="ps-4">
-                    <div class="d-flex align-items-center gap-3">
-                      <div
-                        class="avatar bg-dark bg-opacity-10 text-dark rounded-3 d-flex align-items-center justify-content-center fw-bold"
-                        style="width: 48px; height: 48px;">
-                        N
-                      </div>
-                      <div>
-                        <h6 class="mb-0 text-dark fw-bold">Full Stack Developer</h6>
-                        <small class="text-muted">Netflix &bull; Remote</small>
-                      </div>
+                  <td colspan="3" class="text-center py-5 text-muted">
+                    <div class="mb-3">
+                      <i class="bi bi-briefcase display-4 opacity-25"></i>
                     </div>
-                  </td>
-                  <td class="text-muted">Oct 22, 2024</td>
-                  <td><span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Interview</span></td>
-                  <td class="text-end pe-4">
-                    <div class="d-flex align-items-center justify-content-end gap-2">
-                      <span class="fw-bold text-warning">78%</span>
-                      <div class="progress" style="width: 60px; height: 6px;">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: 78%" aria-valuenow="78"
-                          aria-valuemin="0" aria-valuemax="100"></div>
-                      </div>
-                    </div>
+                    <h6 class="fw-bold text-dark">No Recent Activity</h6>
+                    <p class="small mb-0">Track your first job application to get started.</p>
                   </td>
                 </tr>
+                {% endfor %}
               </tbody>
             </table>
           </div>

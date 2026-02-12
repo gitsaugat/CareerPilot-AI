@@ -1,0 +1,195 @@
+{% extends "layouts/base_app.html" %}
+
+{% block title %}Networking Assistant{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h3 fw-bold text-dark mb-0">Networking Assistant</h2>
+        <p class="text-secondary mb-0">Generate cold emails and connection requests to unlock the hidden job market.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Input Column -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="card-title mb-0 fw-bold text-uppercase small tracking-wide">Target Role & Context</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" id="net-form">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-uppercase text-muted">1. Select Resume</label>
+                        <select class="form-select" name="resume_id" required>
+                            <option value="" disabled selected>Choose a resume...</option>
+                            {% for r in resumes %}
+                            <option value="{{ r.id }}" {% if selected_resume_id==r.id %}selected{% endif %}>{{ r.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold small text-uppercase text-muted mb-0">2. Job / Company
+                                Description</label>
+                            <div class="dropdown">
+                                <button class="btn btn-xs btn-link text-decoration-none dropdown-toggle p-0"
+                                    type="button" data-bs-toggle="dropdown">
+                                    Load Saved
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                                    style="max-height: 200px; overflow-y: auto;">
+                                    {% if jobs %}
+                                    {% for job in jobs %}
+                                    <li><a class="dropdown-item load-job-btn small" href="#"
+                                            data-description="{{ job.description | e }}">{{ job.title }}</a></li>
+                                    {% endfor %}
+                                    {% else %}
+                                    <li><span class="dropdown-item text-muted small">No saved jobs</span></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        <input type="hidden" name="job_description" id="job_description_input"
+                            value="{{ job_description }}">
+                        <div class="border rounded-3 overflow-hidden position-relative" style="height: 300px;">
+                            <div id="editor" class="h-100 border-0">
+                                {% if job_description %}{{ job_description | safe }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-people-fill me-2"></i>Generate Messages
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Output Column -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="card-title mb-0 fw-bold text-uppercase small tracking-wide">Networking Scripts</h6>
+            </div>
+            <div class="card-body bg-light p-4 overflow-auto" style="max-height: 800px;">
+                {% if generated_content %}
+                <div class="vstack gap-4">
+                    <!-- Cold Email -->
+                    <div class="card border-0 shadow-sm">
+                        <div
+                            class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold mb-0 text-primary">Cold Email to Hiring Manager</h6>
+                            <button class="btn btn-sm btn-outline-primary"
+                                onclick="navigator.clipboard.writeText(document.getElementById('cold-email-body').innerText)">Copy</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2"><span class="fw-bold text-secondary small">Subject:</span> {{
+                                generated_content.cold_email_hiring_manager.subject }}</div>
+                            <div class="p-3 bg-light rounded border" id="cold-email-body"
+                                style="white-space: pre-wrap;">{{ generated_content.cold_email_hiring_manager.body }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LinkedIn Request -->
+                    <div class="card border-0 shadow-sm">
+                        <div
+                            class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold mb-0 text-info">LinkedIn Connection Request (< 300 chars)</h6>
+                                    <button class="btn btn-sm btn-outline-info"
+                                        onclick="navigator.clipboard.writeText(document.getElementById('linkedin-req').innerText)">Copy</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="p-3 bg-light rounded border" id="linkedin-req">{{
+                                generated_content.linkedin_connection_request }}</div>
+                            <div class="text-end mt-1"><small class="text-muted">{{
+                                    generated_content.linkedin_connection_request | length }} / 300 chars</small></div>
+                        </div>
+                    </div>
+
+                    <!-- Informational Interview -->
+                    <div class="card border-0 shadow-sm">
+                        <div
+                            class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold mb-0 text-success">Informational Interview Request</h6>
+                            <button class="btn btn-sm btn-outline-success"
+                                onclick="navigator.clipboard.writeText(document.getElementById('info-inv').innerText)">Copy</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="p-3 bg-light rounded border" id="info-inv" style="white-space: pre-wrap;">{{
+                                generated_content.informational_interview_request }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div
+                    class="d-flex flex-column align-items-center justify-content-center h-100 text-center text-muted p-5">
+                    <div class="bg-white p-4 rounded-circle shadow-sm mb-3">
+                        <i class="bi bi-chat-heart display-4 text-secondary opacity-50"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark">Start Networking</h6>
+                    <p class="small mb-0" style="max-width: 300px;">Generate professional scripts to reach out to
+                        recruiters and peers.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var toolbarOptions = [
+            [{ header: [1, 2, false] }],
+            ["bold", "italic", "underline"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["clean"],
+        ];
+
+        var editor = new Quill("#editor", {
+            theme: "snow",
+            modules: { toolbar: toolbarOptions },
+            placeholder: "Paste job description or company info here...",
+        });
+
+        var form = document.querySelector("#net-form");
+        var hiddenInput = document.getElementById("job_description_input");
+
+        form.addEventListener("submit", function () {
+            hiddenInput.value = editor.root.innerHTML;
+        });
+
+        document.querySelectorAll('.load-job-btn').forEach(item => {
+            item.addEventListener('click', event => {
+                event.preventDefault();
+                const description = new DOMParser().parseFromString(item.getAttribute('data-description'), "text/html").documentElement.textContent;
+                editor.root.innerHTML = description;
+            })
+        });
+    });
+</script>
+<style>
+    .ql-container {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+    }
+
+    .ql-toolbar {
+        border-top: 0 !important;
+        border-left: 0 !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        background: #f8fafc;
+    }
+
+    .ql-container.ql-snow {
+        border: none !important;
+    }
+</style>
+{% endblock %}
