@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+import re
 from models import User
 from extensions import db
 
@@ -9,6 +10,19 @@ def index():
     if "user_id" in session:
         return redirect(url_for("dashboard.dashboard"))
     return redirect(url_for("auth.login"))
+
+def validate_password(password):
+    if len(password) < 8:
+        return "Password must be at least 8 characters long."
+    if not re.search(r"[a-z]", password):
+        return "Password must contain at least one lowercase letter."
+    if not re.search(r"[A-Z]", password):
+        return "Password must contain at least one uppercase letter."
+    if not re.search(r"[0-9]", password):
+        return "Password must contain at least one number."
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        return "Password must contain at least one special character."
+    return None
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
@@ -41,6 +55,8 @@ def register():
             flash("Please fill in all required fields.", "error")
         elif password != confirm:
             flash("Passwords do not match.", "error")
+        elif (pwd_error := validate_password(password)):
+            flash(pwd_error, "error")
         elif User.query.filter_by(username=username).first():
             flash("Username already taken.", "error")
         elif User.query.filter_by(email=email).first():

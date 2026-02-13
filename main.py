@@ -10,6 +10,7 @@ from routes.dashboard import dashboard_bp
 from routes.jobs import jobs_bp
 from routes.resumes import resumes_bp
 from routes.tools import tools_bp
+from routes.settings import settings_bp
 
 app = Flask(__name__)
 
@@ -34,6 +35,7 @@ app.register_blueprint(dashboard_bp)
 app.register_blueprint(jobs_bp)
 app.register_blueprint(resumes_bp)
 app.register_blueprint(tools_bp)
+app.register_blueprint(settings_bp)
 
 # Register Template Filters
 @app.template_filter('markdown')

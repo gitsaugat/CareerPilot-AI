@@ -266,14 +266,14 @@
             </div>
 
             <!-- Hidden element for raw text copying -->
-            <div id="revised-content-hidden" style="display: none;">{{ analysis_results['Updated resume'] if 'Updated
-              resume' in analysis_results else '' }}</div>
+            <div id="revised-content-hidden" style="display: none;">{{ analysis_results['updated_resume_markdown'] if
+              'updated_resume_markdown' in analysis_results else '' }}</div>
 
             <div class="bg-light p-4 p-md-5">
               <div class="bg-white shadow-sm p-5 mx-auto rounded-3"
                 style="max-width: 850px; min-height: 1000px; font-family: 'Times New Roman', serif; color: #1e293b; line-height: 1.6;">
-                {% if 'Updated resume' in analysis_results %}
-                {{ analysis_results['Updated resume'] | markdown | safe }}
+                {% if 'updated_resume_markdown' in analysis_results %}
+                {{ analysis_results['updated_resume_markdown'] | markdown | safe }}
                 {% else %}
                 <div class="text-center py-5">
                   <p class="text-muted mb-0">No revised resume available.</p>

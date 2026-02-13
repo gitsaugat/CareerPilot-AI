@@ -23,11 +23,12 @@ class ResumeAnalyzer:
             logger.error(f"Error extracting text from PDF: {e}")
             return None
 
-    def analyze(self, resume_path, job_description):
+    def analyze(self, resume_path, job_description, model_name=None):
         """
         Analyzes a resume against a job description using Ollama.
         Returns a dictionary with score, summary, matching_keywords, missing_keywords, and recommendations.
         """
+        model_to_use = model_name if model_name else self.model_name
         resume_text = self.extract_text_from_pdf(resume_path)
         if not resume_text:
             return {
@@ -40,8 +41,8 @@ class ResumeAnalyzer:
 
         # prompt for the LLM
         prompt = f"""
-        You are a tough, no-nonsense Senior Executive Recruiter.
-        Your job is to brutally critique this resume and rewrite it to get the candidate hired for the specific job description.
+        You are a razor-sharp Fortune 500 Executive Recruiter and ATS Optimization Expert.
+        Your goal is to ruthlessly critique this resume and rewrite it to effectively guarantee an interview for the specific job description.
 
         JOB DESCRIPTION:
         {job_description}
@@ -49,27 +50,40 @@ class ResumeAnalyzer:
         RESUME:
         {resume_text}
 
-        Analyze the fit and return a valid JSON object with the following fields:
-        - "score": A number between 0 and 100. Be strict. High scores (90+) are reserved for perfect matches.
-        - "summary": A direct, honest assessment of why they are or are not a fit.
-        - "matching_keywords": List of hard skills found in both.
-        - "missing_keywords": List of critical hard skills from the JD missing in the resume. EXPERT TIP: Do not hallucinate.
-        - "recommendations": A list of 3-5 specific, harsh, and actionable changes. 
-           Example: "Change 'Responsible for sales' to 'Generated $50k in pipeline monthly'."
-        - "Updated resume" : A completely rewritten, top-tier professional resume in strict MARKDOWN.
-          RULES:
-          1. SINGLE PAGE ONLY. Cut fluff ruthlessly.
-          2. Professional Summary: 2-3 powerful sentences pitching the candidate for THIS specific role.
-          3. Experience: Rewrite bullet points to be "Result + Action + Context". Use numbers/metrics where possible (even if estimated placeholders like '[X]%').
-          4. Skills: Group by category (e.g., Languages, Frameworks).
-          5. Formatting: standard Markdown (## Headers, * Bullets). No images or columns.
+        TASK:
+        1. Analyze the resume against the JD to determine a match score.
+        2. Identify critical hard skills and keywords missing from the resume.
+        3. Rewrite the resume to be a "Perfect Match" for this specific JD.
 
-        Ensure the response is purely valid JSON, no markdown formatting outside the JSON structure.
+        OUTPUT VALID JSON ONLY:
+        {{
+            "score": <0-100 integer. Be strict. <70 is a fail.>,
+            "summary": "<Direct, no-fluff assessment of fit. Start with 'Strong Fit', 'Potential Fit', or 'Poor Fit'.>",
+            "matching_keywords": ["<skill1>", "<skill2>"],
+            "missing_keywords": ["<CRITICAL missing skill from JD>", "<missing tool/tech>"],
+            "recommendations": [
+                "<Actionable advice 1>",
+                "<Actionable advice 2>",
+                "<Actionable advice 3>"
+            ],
+            "updated_resume_markdown": "<Full Markdown content of the rewritten resume>"
+        }}
+
+        REWRITE RULES FOR 'updated_resume_markdown':
+        - FORMAT: Standard Markdown. Use '##' for sections.
+        - LENGTH: Strictly 1 page equivalent (approx 400-600 words).
+        - SUMMARY: 3 sentences max. Pitch the candidate as the *solution* to the JD's problems.
+        - EXPERIENCE:
+            - Reword bullet points to match JD keywords exactly.
+            - Use the 'Action + Context + Result' formula.
+            - QUANTIFY RESULTS. If exact numbers are missing, plausible placeholders like '[X]%' or '$[Y]k'.
+            - Remove weak verbs (e.g., 'Responsible for', 'Helped with'). Use strong verbs (e.g., 'Spearheaded', 'Optimized', 'Generated').
+        - SKILLS: Group by category (e.g., Languages, Frameworks, Tools) to match JD structure.
         """
 
         try:
             response = ollama.chat(
-                model=self.model_name,
+                model=model_to_use,
                 messages=[{'role': 'user', 'content': prompt}],
                 format='json', # Enforce JSON mode if supported, otherwise styling prompt is key
                 options={'temperature': 0.1}
@@ -96,8 +110,9 @@ class ResumeAnalyzer:
                 "recommendations": []
             }
 
-    def generate_cover_letter(self, resume_path, job_description):
+    def generate_cover_letter(self, resume_path, job_description, model_name=None):
         """Generate a customized cover letter."""
+        model_to_use = model_name if model_name else self.model_name
         resume_text = self.extract_text_from_pdf(resume_path)
         if not resume_text:
             return None
@@ -127,7 +142,7 @@ class ResumeAnalyzer:
         
         try:
             response = ollama.chat(
-                model=self.model_name,
+                model=model_to_use,
                 messages=[{'role': 'user', 'content': prompt}],
                 options={'temperature': 0.7}
             )
@@ -136,8 +151,9 @@ class ResumeAnalyzer:
             logger.error(f"Error generating cover letter: {e}")
             return None
 
-    def generate_interview_prep(self, resume_path, job_description):
+    def generate_interview_prep(self, resume_path, job_description, model_name=None):
         """Generate interview preparation questions and answers."""
+        model_to_use = model_name if model_name else self.model_name
         resume_text = self.extract_text_from_pdf(resume_path)
         if not resume_text:
             return None
@@ -168,7 +184,7 @@ class ResumeAnalyzer:
         
         try:
             response = ollama.chat(
-                model=self.model_name,
+                model=model_to_use,
                 messages=[{'role': 'user', 'content': prompt}],
                 format='json',
                 options={'temperature': 0.7}
@@ -184,8 +200,9 @@ class ResumeAnalyzer:
             logger.error(f"Error generating interview prep: {e}")
             return None
 
-    def generate_networking_messages(self, resume_path, job_description):
+    def generate_networking_messages(self, resume_path, job_description, model_name=None):
         """Generate networking messages (Cold Email & LinkedIn)."""
+        model_to_use = model_name if model_name else self.model_name
         resume_text = self.extract_text_from_pdf(resume_path)
         if not resume_text:
             return None
@@ -213,7 +230,7 @@ class ResumeAnalyzer:
         
         try:
             response = ollama.chat(
-                model=self.model_name,
+                model=model_to_use,
                 messages=[{'role': 'user', 'content': prompt}],
                 format='json',
                 options={'temperature': 0.7}
@@ -229,8 +246,9 @@ class ResumeAnalyzer:
             logger.error(f"Error generating networking messages: {e}")
             return None
 
-    def optimize_linkedin(self, resume_path, job_description):
+    def optimize_linkedin(self, resume_path, job_description, model_name=None):
         """Generate LinkedIn profile optimization suggestions."""
+        model_to_use = model_name if model_name else self.model_name
         resume_text = self.extract_text_from_pdf(resume_path)
         if not resume_text:
             return None
@@ -259,7 +277,7 @@ class ResumeAnalyzer:
         
         try:
             response = ollama.chat(
-                model=self.model_name,
+                model=model_to_use,
                 messages=[{'role': 'user', 'content': prompt}],
                 format='json',
                 options={'temperature': 0.7}
@@ -275,8 +293,9 @@ class ResumeAnalyzer:
             logger.error(f"Error optimizing LinkedIn profile: {e}")
             return None
 
-    def generate_negotiation_scripts(self, job_title, offer_details=None):
+    def generate_negotiation_scripts(self, job_title, offer_details=None, model_name=None):
         """Generate salary negotiation scripts."""
+        model_to_use = model_name if model_name else self.model_name
         
         context = f"Job Title: {job_title}"
         if offer_details:
@@ -300,7 +319,7 @@ class ResumeAnalyzer:
         
         try:
             response = ollama.chat(
-                model=self.model_name,
+                model=model_to_use,
                 messages=[{'role': 'user', 'content': prompt}],
                 format='json',
                 options={'temperature': 0.7}

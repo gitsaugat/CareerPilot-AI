@@ -15,6 +15,7 @@ class User(db.Model):
     country = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(50), nullable=False)
+    selected_model = db.Column(db.String(50), default="llama3")
     password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)

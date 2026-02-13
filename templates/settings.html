@@ -1,0 +1,98 @@
+{% extends "layouts/base_app.html" %}
+
+{% block title %}Settings | CareerPilot AI{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h3 fw-bold text-dark mb-0">Settings</h2>
+        <p class="text-secondary mb-0">Manage your account preferences and security.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- AI Preferences -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex align-items-center gap-2 text-primary">
+                    <i class="bi bi-cpu-fill fs-5"></i>
+                    <h6 class="card-title mb-0 fw-bold text-uppercase small tracking-wide">AI Preferences</h6>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    <input type="hidden" name="action" value="update_profile">
+
+                    <div class="mb-4">
+                        <label for="selected_model" class="form-label fw-bold small text-secondary">Preferred AI
+                            Model</label>
+                        <select class="form-select bg-light border-0" id="selected_model" name="selected_model">
+                            {% for model in available_models %}
+                            <option value="{{ model }}" {% if user.selected_model==model %}selected{% endif %}>{{ model
+                                }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text mt-2 small text-muted">
+                            Select the local Ollama model to use for resume analysis and generation tasks.
+                            Ensure the model is pulled (e.g., <code>ollama pull {{ user.selected_model }}</code>).
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary fw-bold">
+                            Save Preferences
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Settings -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex align-items-center gap-2 text-danger">
+                    <i class="bi bi-shield-lock-fill fs-5"></i>
+                    <h6 class="card-title mb-0 fw-bold text-uppercase small tracking-wide">Security</h6>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    <input type="hidden" name="action" value="change_password">
+
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label fw-bold small text-secondary">Current
+                            Password</label>
+                        <input type="password" class="form-control bg-light border-0" id="current_password"
+                            name="current_password" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label fw-bold small text-secondary">New Password</label>
+                        <input type="password" class="form-control bg-light border-0" id="new_password"
+                            name="new_password" required>
+                        <div class="form-text small text-muted" style="font-size: 0.75rem;">
+                            Must be 8+ chars with uppercase, lowercase, number, and special char.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="confirm_password" class="form-label fw-bold small text-secondary">Confirm New
+                            Password</label>
+                        <input type="password" class="form-control bg-light border-0" id="confirm_password"
+                            name="confirm_password" required>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-outline-danger fw-bold">
+                            Change Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
